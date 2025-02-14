@@ -7,6 +7,7 @@ import EmptyState from "@/components/EmptyState";
 import { getVehicleListings } from "@/lib/appwrite";
 import { Models } from "react-native-appwrite";
 import { getFileView } from "@/lib/imageUpload";
+import { parseVehicleData } from "@/utils/utls";
 
 const home = () => {
   const [vehicleListings, setVehicleListings] = useState<
@@ -14,39 +15,12 @@ const home = () => {
   >(null);
 
   useEffect(() => {
-    const getImages = async (images: string[]) => {
-      return await Promise.all(
-        images.map(async (image) => {
-          const url = await getFileView(image);
-          return url;
-        })
-      );
-    };
     const fetchListings = async () => {
       const listings = await getVehicleListings();
 
-
       const vehicleListings = await Promise.all(
         listings?.documents.map(async (doc) => {
-          const data = doc as Models.Document;
-          const headerImage = await getImages([data?.images[0]]);
-          return {
-            title: data?.title,
-            listingId: data?.$id,
-            images: headerImage,
-            price: data?.price,
-            currency: data?.currency,
-            city: data?.city,
-            pickupLocation: data?.pickupLocation,
-            enginePower: data?.enginePower,
-            vehicleType: data?.vehicleType,
-            seller: {
-              name: data?.seller.username,
-              profilePicture: data?.seller.avatar,
-              rating: 4.5,
-              ratingCount: 5,
-            },
-          };
+          return parseVehicleData(doc);
         })
       );
 

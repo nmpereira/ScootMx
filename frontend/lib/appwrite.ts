@@ -168,3 +168,17 @@ export async function getVehicleListings() {
     throw new Error(error as string);
   }
 }
+
+export async function getVehicleListingById(id: string) {
+  try {
+    const listing = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.vehicleCollectionId,
+      id
+    );
+
+    return listing;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+}
