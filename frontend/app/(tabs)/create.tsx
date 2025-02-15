@@ -72,7 +72,7 @@ const CreateListing = () => {
   }, [formFields]);
 
   return (
-    <SafeAreaView className="bg-background-950 h-full ">
+    <SafeAreaView className="bg-background-900 h-full ">
       <View className="flex items-center h-full p-4">
         {/* Input Fields */}
         <ScrollView className="h-full ">
@@ -152,8 +152,8 @@ const CreateListing = () => {
             />
           </View>
 
-          <View className="mt-7 flex flex-row gap-4">
-            <View className="flex flex-row w-full items-center w-1/2">
+          <View className="mt-7 flex flex-row gap-4 w-full">
+            <View className="flex flex-row items-center w-1/2">
               <FormField
                 title={"Engine Power (CC)"}
                 placeholder={"Enter engine power for vehicle"}
@@ -165,7 +165,7 @@ const CreateListing = () => {
                     enginePower: isNaN(numericValue) ? 0 : numericValue,
                   });
                 }}
-                otherStyles={"w-4/5"}
+                otherStyles={"w-3/5"}
                 keyboardType={"numeric"}
               />
               <Text className="text-white mt-6 w-1/5 text-center font-semibold text-2xl">
