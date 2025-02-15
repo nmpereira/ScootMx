@@ -13,9 +13,13 @@ This document outlines the detailed flow and features of the scooter (and ATV) r
   - [Owner (Rentee) Flow](#owner-rentee-flow)
   - [Renter Flow](#renter-flow)
 - [Application Pages & Components](#application-pages--components)
+- [State Management](#state-management)
+- [API Communication](#api-communication)
+- [UI Components](#ui-components)
 - [Admin Panel and Moderation](#admin-panel-and-moderation)
 - [Additional Considerations](#additional-considerations)
 - [Technical Considerations](#technical-considerations)
+- [Optimal Folder Structure](#optimal-folder-structure)
 
 ---
 
@@ -48,8 +52,8 @@ The app is designed to be scalable to support multiple countries and various typ
 
 ### Common Features
 - **User Registration & Authentication**  
-  - Sign-up options via email, phone number, or social media.
-  - Profile management including verification of identity (especially important for rental agreements).
+  - Sign-up options via email.
+  - Profile management.
 
 - **Location-Based Search & Filtering**  
   - Map and list views.
@@ -72,7 +76,7 @@ The app is designed to be scalable to support multiple countries and various typ
     - Included items (helmets, documents, etc.).
     - Terms and conditions.
     - Additional fees or requirements.
-  
+
 - **Review & Rating System**  
   - Both owners and renters can leave reviews after a rental is complete.
   - Helps build trust and quality assurance on both sides.
@@ -213,6 +217,29 @@ The app is designed to be scalable to support multiple countries and various typ
 
 ---
 
+## State Management
+
+- **GlobalProvider (Context API):** Manages global state, including authentication status (`isLogged`), user information (`user`), and loading state (`loading`).
+
+---
+
+## API Communication
+
+- **Appwrite SDK:** Used for backend services, including authentication, database, and storage.
+- **Axios:** Used for making HTTP requests to external APIs (if any).
+
+---
+
+## UI Components
+
+- **Gluestack UI:** A set of accessible React Native components used for building the user interface.
+- **Tailwind CSS:** Used for styling components.
+- **Nativewind:** Used to apply Tailwind CSS styles in React Native.
+- **React Native Reanimated:** Used for smooth animations.
+- **React Native Safe Area Context:** Used for handling safe area insets.
+- **React Native Gesture Handler:** Used for handling gestures.
+---
+
 ## Admin Panel and Moderation
 
 - **User Management:**  
@@ -256,12 +283,10 @@ The app is designed to be scalable to support multiple countries and various typ
 ## Technical Considerations
 
 - **Front-End Framework:**  
-  - Options: React Native, Flutter, or native development (iOS and Android) for mobile app development.
+  - React Native with Expo.
 
 - **Back-End Infrastructure:**  
-  - RESTful API or GraphQL server for handling data.
-  - Real-time messaging service (e.g., WebSockets, Firebase).
-  - Database: SQL or NoSQL, depending on scalability and data structure needs.
+  - Appwrite.
 
 - **Third-Party Integrations:**  
   - Maps and location services (e.g., Google Maps API).
@@ -275,56 +300,52 @@ The app is designed to be scalable to support multiple countries and various typ
 
 ---
 
-# Optimal Folder Structure
-src/
+## Optimal Folder Structure
+
+```plaintext
+car-rental-app/
 ├── app/
 │   ├── (auth)/
-│   │   ├── login.tsx
-│   │   └── register.tsx
-│   ├── (app)/
-│   │   ├── bookings/
-│   │   │   ├── [id].tsx
-│   │   │   └── index.tsx
-│   │   ├── listings/
-│   │   │   ├── [id].tsx
-│   │   │   └── index.tsx
-│   │   ├── messages/
-│   │   │   └── index.tsx
-│   │   └── profile/
-│   │       └── index.tsx
+|   |   ├── _layout.tsx
+│   │   ├── signIn.tsx
+│   │   └── signUp.tsx
+│   ├── (tabs)/
+│   │   ├── _layout.tsx
+│   │   ├── index.tsx
+│   │   ├── listings.tsx
+│   │   ├── create.tsx
+│   │   ├── messages.tsx
+│   │   └── settings.tsx
 │   ├── _layout.tsx
+│   ├── +not-found.tsx
 │   └── index.tsx
 ├── src/
+│   ├── api/
+│   │   ├── appwrite.ts
 │   ├── components/
-│   │   ├── booking/
-│   │   │   ├── BookingCard.tsx
-│   │   │   └── BookingForm.tsx
-│   │   ├── listing/
-│   │   │   ├── ListingCard.tsx
-│   │   │   └── ListingForm.tsx
-│   │   └── shared/
-│   │       ├── Button.tsx
-│   │       └── Input.tsx
-│   ├── hooks/
-│   │   ├── useAuth.ts
-│   │   └── useBookings.ts
-│   ├── services/
-│   │   ├── api.ts
-│   │   └── storage.ts
-│   ├── stores/
-│   │   └── auth.store.ts
-│   ├── types/
-│   │   └── index.ts
-│   └── utils/
-│       └── helpers.ts
+│   │   ├── ui/
+│   │   │   ├── (various UI components)
+│   │   ├── CustomButton.tsx
+│   │   ├── FormField.tsx
+│   │   ├── Alert.tsx
+│   │   ├── PhotoUpload.tsx
+│   │   ├── DropDownSelector.tsx
+│   │   ├── ScooterCard.tsx
+│   │   └── EmptyState.tsx
+│   ├── context/
+│   │   └── GlobalProvider.tsx
+│   ├── constants/
+│   │   └── icons.js
+│   ├── lib/
+│   │   └── appwrite.ts
+│   ├── utils/
+│   │   └── utls.ts
 ├── assets/
 │   ├── fonts/
 │   └── images/
-├── tests/
-│   └── components/
-├── .env
-├── app.config.ts
+├── app.json
 ├── babel.config.js
 ├── package.json
+├── tailwind.config.js
 ├── tsconfig.json
-└── README.md
+└── global.css
