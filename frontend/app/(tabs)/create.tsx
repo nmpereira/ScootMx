@@ -165,12 +165,10 @@ const CreateListing = () => {
                     enginePower: isNaN(numericValue) ? 0 : numericValue,
                   });
                 }}
-                otherStyles={"w-3/5"}
+                otherStyles={"w-4/5"}
                 keyboardType={"numeric"}
+                suffix={"CC"}
               />
-              <Text className="text-white mt-6 w-1/5 text-center font-semibold text-2xl">
-                CC
-              </Text>
             </View>
 
             <View className="w-2/5">

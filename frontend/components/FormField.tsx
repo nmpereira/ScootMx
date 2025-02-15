@@ -10,6 +10,7 @@ interface FormFieldProps {
   handleChangeText: (text: string) => void;
   otherStyles?: string;
   keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
+  suffix?: string;
 }
 
 const FormField = ({
@@ -18,6 +19,7 @@ const FormField = ({
   placeholder,
   handleChangeText,
   otherStyles,
+  suffix,
   ...props
 }: FormFieldProps) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -45,6 +47,12 @@ const FormField = ({
               resizeMode="contain"
             />
           </TouchableOpacity>
+        )}
+
+        {suffix && (
+          <Text className="text-white text-2xl font-psemibold absolute top-1/2 right-2 -translate-y-1/2">
+            {suffix}
+          </Text>
         )}
       </View>
     </View>
