@@ -1,4 +1,5 @@
 import { FormFieldProps } from "@/app/(tabs)/create";
+import messages from "@/app/(tabs)/messages";
 import { ScooterCardProps } from "@/components/ScooterCard";
 import {
   Client,
@@ -18,6 +19,7 @@ export const appwriteConfig = {
   databaseId: "67a3ce0e00309511ea75",
   userCollectionId: "67a3ce500022d7c3a3dd",
   vehicleCollectionId: "67a517120011f7f6dd1a",
+  messagesCollectionId: "67b17849001499db151d",
 };
 
 const client = new Client()
@@ -178,6 +180,34 @@ export async function getVehicleListingById(id: string) {
     );
 
     return listing;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+}
+
+
+// messages page, get just the messages that are related to the current user
+export async function getMessages() {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) throw Error;
+
+    const messages = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.messagesCollectionId,
+   
+
+      // messages are sent to and from the current user
+      [
+        Query.or([
+          Query.equal("userFrom", currentUser.$id),
+          Query.equal("userTo", currentUser.$id),
+        ]),
+      ]
+
+    );
+
+    return messages;
   } catch (error) {
     throw new Error(error as string);
   }
