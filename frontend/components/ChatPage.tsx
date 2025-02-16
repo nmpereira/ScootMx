@@ -37,14 +37,14 @@ const Message = ({
         >
           {message.messagebody}
         </Text>
-        <Text className="text-xs text-gray-500 text-right">
-          {new Intl.DateTimeFormat("en-US", {
-            hour: "numeric",
-            minute: "numeric",
-            hour12: true,
-          }).format(new Date(message.timeSent))}
-        </Text>
       </View>
+      <Text className="text-xs text-gray-500 text-right">
+        {new Intl.DateTimeFormat("en-US", {
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        }).format(new Date(message.timeSent))}
+      </Text>
     </View>
   );
 };
@@ -68,14 +68,16 @@ const ChatPage = () => {
   )?.userFrom;
 
   return (
-    <View className="flex-1 w-96 p-4 bg-background-950">
-        <View className="flex flex-row items-center gap-4">
-      <AvatarComponent
-        name={nonCurrentUser?.username}
-        imageUrl={nonCurrentUser?.avatar}
-      />
-      <Text className="text-2xl font-semibold text-tertiary-500">{nonCurrentUser?.username}</Text>
-    </View>
+    <View className="flex-1 w-96 p-4">
+      <View className="flex flex-row items-center gap-4">
+        <AvatarComponent
+          name={nonCurrentUser?.username}
+          imageUrl={nonCurrentUser?.avatar}
+        />
+        <Text className="text-2xl font-semibold text-tertiary-500">
+          {nonCurrentUser?.username}
+        </Text>
+      </View>
       <FlatList
         data={messages}
         keyExtractor={(item) => item.$id}
