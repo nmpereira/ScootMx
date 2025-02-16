@@ -7,6 +7,7 @@ import { VStack } from "@/components/ui/vstack";
 import { TouchableOpacity, View } from "react-native";
 import { HStack } from "@/components/ui/hstack";
 import { router } from "expo-router";
+import { FormFieldProps } from "@/app/(tabs)/create";
 
 interface SellerProps {
   name: string;
@@ -14,15 +15,11 @@ interface SellerProps {
   rating: number;
   ratingCount: number;
 }
-export interface ScooterCardProps {
-  title: string;
-  images: string[];
-  price: number;
-  currency: string;
-  vehicleType: string;
-  pickupLocation: string;
-  seller: SellerProps;
+
+export interface ScooterCardProps extends FormFieldProps {
   listingId: string;
+  images: string[];
+  seller: SellerProps;
 }
 
 const SellerCard = ({
@@ -64,7 +61,6 @@ const ScooterCard = ({
   listingId,
   seller,
 }: ScooterCardProps) => {
-
   const handleViewListing = () => {
     router.navigate(`/listing/${listingId}`);
   };
