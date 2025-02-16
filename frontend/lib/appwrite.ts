@@ -212,3 +212,34 @@ export async function getMessages() {
     throw new Error(error as string);
   }
 }
+
+// send a message
+export async function sendMessage({
+  message,
+  userTo,
+}: {
+  message: string;
+  userTo: string;
+}) {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) throw Error;
+
+    const newMessage = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.messagesCollectionId,
+      ID.unique(),
+      {
+        userFrom: currentUser.$id,
+        userTo,
+        messagebody: message,
+        // ISO 8601 format
+        timeSent: new Date().toISOString(),
+      }
+    );
+
+    return newMessage;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+}

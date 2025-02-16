@@ -16,11 +16,11 @@ const AvatarComponent = (props:AvatarComponentProps) => {
   return (
     <Avatar size="md">
       <AvatarFallbackText>{name}</AvatarFallbackText>
-      <AvatarImage
+      {/* <AvatarImage
         source={{
           uri: imageUrl,
         }}
-      />
+      /> */}
       {/* <AvatarBadge /> */}
     </Avatar>
   );

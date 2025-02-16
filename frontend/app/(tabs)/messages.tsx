@@ -4,8 +4,8 @@ import ChatPage from "@/components/ChatPage";
 
 const messages = () => {
   return (
-    <SafeAreaView className="bg-background-950 h-full">
-      <View className="flex items-center justify-center h-[90vh] w-full">
+    <SafeAreaView className="bg-background-950 h-full ">
+      <View className="flex items-center justify-center h-full">
         <ChatPage />
       </View>
     </SafeAreaView>
