@@ -4,6 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import { getVehicleListingById } from "@/lib/appwrite";
 import ScooterCard, { ScooterCardProps } from "@/components/ScooterCard";
 import { parseVehicleData } from "@/utils/utls";
+import VehiclePage from "@/components/VehiclePage";
 
 const ListingPage = () => {
   const { listingId } = useLocalSearchParams();
@@ -36,7 +37,7 @@ const ListingPage = () => {
         </Text>
 
         <View className="w-full flex justify-center items-center">
-          {listing ? <ScooterCard {...listing} /> : <Text>Loading...</Text>}
+          {listing ? <VehiclePage {...listing} /> : <Text>Loading...</Text>}
         </View>
       </View>
     </SafeAreaView>

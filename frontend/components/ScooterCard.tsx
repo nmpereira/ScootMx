@@ -15,18 +15,12 @@ interface SellerProps {
   ratingCount: number;
 }
 export interface ScooterCardProps {
-  // headerImage: string;
   title: string;
   images: string[];
-  // vehicleInfo: string;
-  // datefrom: string;
-  // dateto: string;
   price: number;
-  // currency: string;
-  // vehicleType: string;
-  // vehicleRating: number;
-  // vehicleRatingCount: number;
-  // pickupLocation: string;
+  currency: string;
+  vehicleType: string;
+  pickupLocation: string;
   seller: SellerProps;
   listingId: string;
 }
@@ -57,18 +51,16 @@ const SellerCard = ({
 };
 
 const ScooterCard = ({
-  // headerImage,
   title,
   images,
-  // vehicleInfo,
   // datefrom,
   // dateto,
   price,
-  // currency,
+  currency,
   // vehicleType,
   // vehicleRating,
   // vehicleRatingCount,
-  // pickupLocation,
+  pickupLocation,
   listingId,
   seller,
 }: ScooterCardProps) => {
@@ -93,11 +85,6 @@ const ScooterCard = ({
           <Heading size="md" className="">
             {title}
           </Heading>
-
-          <Text className="text-sm font-normal text-typography-700 w-2/3 ">
-            {/* {vehicleInfo} */}
-            vehicleInfo
-          </Text>
         </VStack>
         <View className="w-1/3 ">
           <SellerCard {...seller} />
@@ -117,7 +104,7 @@ const ScooterCard = ({
           Price:{" "}
           <Text size="sm" className="font-bold">
             {price}
-            {/* {currency} */}
+            {currency}
             {"/"} day
           </Text>
         </Text>
@@ -125,8 +112,7 @@ const ScooterCard = ({
         <Text size="sm">
           Pick up location:{" "}
           <Text size="sm" className="font-bold">
-            {/* {pickupLocation ? pickupLocation : "N/A"} */}
-            {`Tulum, Mexico`}
+            {pickupLocation ? pickupLocation : "N/A"}
           </Text>
         </Text>
       </VStack>
