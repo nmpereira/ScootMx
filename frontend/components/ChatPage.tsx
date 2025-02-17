@@ -13,7 +13,6 @@ interface ChatPreview {
 }
 
 const ChatPage = () => {
-  const { user } = useGlobalContext();
   const [chatList, setChatList] = useState<ChatPreview[]>([]);
 
   const fetchChatList = async () => {
@@ -26,18 +25,8 @@ const ChatPage = () => {
     fetchChatList();
   }, []);
 
-  const getOtherUser = (chat: Models.Document) => {
-
-    console.log(`[ChatPage] getOtherUser`, chat);
-    if (chat.user.$id === user?.$id) {
-      return chat.latestMessage.userFrom;
-    }
-
-    return chat.user;
-  };
-
   const goToUserChat = (item: Models.Document) => {
-    const otherUser = item.$id
+    const otherUser = item.$id;
 
     if (!otherUser) {
       return;

@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { useGlobalContext } from "@/context/GlobalProvider";
-import {  getMessages, sendMessage } from "@/lib/appwrite";
+import {  getMessages, getUser, sendMessage } from "@/lib/appwrite";
 import { Models } from "react-native-appwrite";
 import AvatarComponent from "@/components/AvatarComponent";
 import { router } from "expo-router";
@@ -72,13 +72,23 @@ const Message = ({
   
   const MessagePage = ({ otherUser }: { otherUser: string }) => {
     const { user } = useGlobalContext(); 
+    const [nonCurrentUser, setNonCurrentUser] = useState<Models.Document | null>(null);
     const [messages, setMessages] = useState<Models.Document[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const flatListRef = useRef<FlatList>(null);
   
     const fetchMessages = useCallback(async () => {
-      const response = await getMessages();
+      const response = await getMessages(otherUser);
       setMessages(response?.documents || []);
+    }, []);
+
+    useEffect(() => {
+      const fetchNonCurrentUser = async () => {
+        const response = await getUser(otherUser);
+        setNonCurrentUser(response);
+      };
+  
+      fetchNonCurrentUser();
     }, []);
   
     useEffect(() => {
@@ -109,9 +119,7 @@ const Message = ({
       }, 200);
     };
   
-    const nonCurrentUser = messages.find(
-      (message) => message.userFrom.$id !== user?.$id
-    )?.userFrom;
+
   
     return (
       <KeyboardAvoidingView

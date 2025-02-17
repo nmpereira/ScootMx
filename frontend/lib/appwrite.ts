@@ -127,6 +127,21 @@ export async function getCurrentUser() {
   }
 }
 
+// get user by id
+export async function getUser(id: string) {
+  try {
+    const user = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      id
+    );
+
+    return user;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+}
+
 // Sign Out
 export async function signOut() {
   try {
@@ -190,7 +205,7 @@ export async function getVehicleListingById(id: string) {
 }
 
 // messages page, get just the messages that are related to the current user
-export async function getMessages() {
+export async function getMessages(otherUser: string) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) throw Error;
@@ -198,14 +213,21 @@ export async function getMessages() {
     const messages = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.messagesCollectionId,
-
       [
         Query.or([
-          Query.equal("userFrom", currentUser.$id),
-          Query.equal("userTo", currentUser.$id),
+          Query.and([
+            Query.equal("userFrom", currentUser.$id),
+            Query.equal("userTo", otherUser),
+          ]),
+          Query.and([
+            Query.equal("userFrom", otherUser),
+            Query.equal("userTo", currentUser.$id),
+          ]),
         ]),
       ]
     );
+
+
 
     return messages;
   } catch (error) {
@@ -244,54 +266,6 @@ export async function sendMessage({
   }
 }
 
-// get latest messages sent to the current user by all users
-export async function getLatestMessages() {
-  try {
-    const currentUser = await getCurrentUser();
-    if (!currentUser) throw Error;
-
-    const hasChatsWith = currentUser.hasChatsWith || [];
-
-    const usersWithChats = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
-      [
-        Query.equal(
-          "$id",
-          hasChatsWith.map((user: string) => user)
-        ),
-      ]
-    );
-
-    console.log("[usersWithChats]", { usersWithChats, hasChatsWith });
-
-    const messages = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.messagesCollectionId,
-      [
-        Query.or(
-          hasChatsWith
-            .map((user: string) => [
-              Query.and([
-                Query.equal("userFrom", user),
-                Query.equal("userTo", currentUser.$id),
-              ]),
-              Query.and([
-                Query.equal("userFrom", currentUser.$id),
-                Query.equal("userTo", user),
-              ]),
-            ])
-            .flat()
-        ),
-        Query.limit(1),
-      ]
-    );
-
-    return messages;
-  } catch (error) {
-    throw new Error(error as string);
-  }
-}
 
 export async function getChatPreviews() {
   try {
@@ -301,6 +275,10 @@ export async function getChatPreviews() {
     // Get the list of chat partner IDs
     const hasChatsWith: string[] = currentUser.hasChatsWith || [];
 
+    if (hasChatsWith.length === 0) {
+      return [];
+    }
+
     // Retrieve user details for each chat partner
     const usersResponse = await databases.listDocuments(
       appwriteConfig.databaseId,
@@ -308,6 +286,10 @@ export async function getChatPreviews() {
       [Query.equal("$id", hasChatsWith)]
     );
     const chatUsers = usersResponse.documents;
+
+    if (chatUsers.length === 0) {
+      return [];
+    }
 
     // For each chat partner, get the latest message in the conversation.
     const chatPreviews = await Promise.all(
