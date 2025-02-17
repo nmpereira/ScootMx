@@ -293,6 +293,55 @@ export async function getLatestMessages() {
   }
 }
 
+export async function getChatPreviews() {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) throw new Error("User not found");
+
+    // Get the list of chat partner IDs
+    const hasChatsWith: string[] = currentUser.hasChatsWith || [];
+
+    // Retrieve user details for each chat partner
+    const usersResponse = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("$id", hasChatsWith)]
+    );
+    const chatUsers = usersResponse.documents;
+
+    // For each chat partner, get the latest message in the conversation.
+    const chatPreviews = await Promise.all(
+      chatUsers.map(async (chatUser: any) => {
+        const messagesResponse = await databases.listDocuments(
+          appwriteConfig.databaseId,
+          appwriteConfig.messagesCollectionId,
+          [
+            Query.or([
+              Query.and([
+                Query.equal("userFrom", chatUser.$id),
+                Query.equal("userTo", currentUser.$id),
+              ]),
+              Query.and([
+                Query.equal("userFrom", currentUser.$id),
+                Query.equal("userTo", chatUser.$id),
+              ]),
+            ]),
+            // Order messages by creation date descending so the latest comes first
+            Query.orderDesc("timeSent"),
+            Query.limit(1),
+          ]
+        );
+        return { user: chatUser, latestMessage: messagesResponse.documents[0] };
+      })
+    );
+
+    return chatPreviews;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+}
+
+
 // startChat
 export async function startChat(userTo: string) {
   try {

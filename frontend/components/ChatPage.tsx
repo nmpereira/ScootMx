@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
 
-import { getLatestMessages } from "@/lib/appwrite";
+import { getChatPreviews } from "@/lib/appwrite";
 import { Models } from "react-native-appwrite";
 import AvatarComponent from "@/components/AvatarComponent";
 import { router } from "expo-router";
 import { GlobalContext, useGlobalContext } from "@/context/GlobalProvider";
 
+interface ChatPreview {
+  user: Models.Document;
+  latestMessage: Models.Document;
+}
+
 const ChatPage = () => {
   const { user } = useGlobalContext();
-  const [chatList, setChatList] = useState<Models.Document[]>([]);
+  const [chatList, setChatList] = useState<ChatPreview[]>([]);
 
   const fetchChatList = async () => {
-    const response = await getLatestMessages();
+    const response = await getChatPreviews();
     console.log(`[ChatPage] response`, response);
-    setChatList(response?.documents || []);
+    setChatList(response);
   };
 
   useEffect(() => {
@@ -22,34 +27,40 @@ const ChatPage = () => {
   }, []);
 
   const getOtherUser = (chat: Models.Document) => {
-    return chat.userTo.userId === user?.$id ? chat.userFrom : chat.userTo;
+
+    console.log(`[ChatPage] getOtherUser`, chat);
+    if (chat.user.$id === user?.$id) {
+      return chat.latestMessage.userFrom;
+    }
+
+    return chat.user;
   };
 
   const goToUserChat = (item: Models.Document) => {
-    const otherUser = getOtherUser(item);
+    const otherUser = item.$id
 
     if (!otherUser) {
       return;
     }
-    router.navigate(`/chats/${otherUser.$id}`);
+    router.navigate(`/chats/${otherUser}`);
   };
 
   return (
     <View className="flex-1 bg-background-950 w-full max-w-[414px] border border-primary-500 h-full">
       <FlatList
         data={chatList}
-        keyExtractor={(item) => item.$id}
+        keyExtractor={(item) => item.user.$id}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={() => goToUserChat(item)}
+            onPress={() => goToUserChat(item.user)}
             className="flex flex-row items-center p-4 border border-tertiary-500"
           >
             <AvatarComponent
-              name={item.userTo.username}
-              imageUrl={item.userTo.avatar}
+              name={item.user.username}
+              imageUrl={item.user.avatar}
             />
             <Text className="ml-4 text-lg font-semibold text-tertiary-500">
-              {item.userTo.username}
+              {item.user.username}
             </Text>
           </TouchableOpacity>
         )}
