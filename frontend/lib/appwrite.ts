@@ -10,6 +10,7 @@ import {
   ID,
   Query,
   QueryTypesList,
+  Models,
 } from "react-native-appwrite";
 
 export const appwriteConfig = {
@@ -251,6 +252,19 @@ export async function getLatestMessages() {
 
     const hasChatsWith = currentUser.hasChatsWith || [];
 
+    const usersWithChats = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [
+        Query.equal(
+          "$id",
+          hasChatsWith.map((user: string) => user)
+        ),
+      ]
+    );
+
+    console.log("[usersWithChats]", { usersWithChats, hasChatsWith });
+
     const messages = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.messagesCollectionId,
@@ -269,6 +283,7 @@ export async function getLatestMessages() {
             ])
             .flat()
         ),
+        Query.limit(1),
       ]
     );
 
@@ -291,28 +306,6 @@ export async function startChat(userTo: string) {
       return;
     }
 
-    /**
-     *   const currentUser = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
-      [Query.equal("accountId", currentAccount.$id)]
-    );
-
-    if (!currentUser) throw Error;
-
-    return currentUser.documents[0];
-     */
-    // get the userTo user
-    // const userToUser = await databases.listDocuments(
-    //   appwriteConfig.databaseId,
-    //   appwriteConfig.userCollectionId,
-    //   [Query.equal("accountId", userTo)]
-    // );
-
-    // console.log("[userToUser]", userToUser);
-
-    // if (!userToUser) throw Error;
-
     const startChat = await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.messagesCollectionId,
@@ -325,8 +318,6 @@ export async function startChat(userTo: string) {
       }
     );
 
-    console.log("[startChat]", startChat);
-
     currentUserChatList.push(userTo);
 
     await databases.updateDocument(
@@ -335,6 +326,25 @@ export async function startChat(userTo: string) {
       currentUser.$id,
       {
         hasChatsWith: currentUserChatList,
+      }
+    );
+
+    // update the userTo's chat list
+    const userToData = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userTo
+    );
+
+    const userToChatList = userToData.hasChatsWith || [];
+    userToChatList.push(currentUser.$id);
+
+    await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userTo,
+      {
+        hasChatsWith: userToChatList,
       }
     );
     return startChat;
