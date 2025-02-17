@@ -3,6 +3,8 @@ import { Models } from "react-native-appwrite";
 
 export async function parseVehicleData(data: Models.Document) {
   const headerImage = await getImages([data?.images[0]]);
+
+  console.log(`[parseVehicleData]`, data);
   return {
     title: data?.title,
     listingId: data?.$id,
@@ -16,6 +18,7 @@ export async function parseVehicleData(data: Models.Document) {
     seller: {
       name: data?.seller.username,
       profilePicture: data?.seller.avatar,
+      id: data?.seller.$id,
       rating: 4.5,
       ratingCount: 5,
     },

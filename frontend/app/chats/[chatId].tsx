@@ -1,15 +1,17 @@
 import { View, Text, SafeAreaView } from "react-native";
 import React from "react";
-import ChatPage from "@/components/ChatPage";
+import { useLocalSearchParams } from "expo-router";
+import MessagePage from "@/components/ChatWithUser";
 
-const messages = () => {
+const ChatWithUser = () => {
+  const { chatId } = useLocalSearchParams();
   return (
     <SafeAreaView className="bg-background-950 h-full">
       <View className="flex items-center justify-center h-full p-16">
-        <ChatPage />
+        <MessagePage otherUser={chatId as string} />
       </View>
     </SafeAreaView>
   );
 };
 
-export default messages;
+export default ChatWithUser;

@@ -9,6 +9,7 @@ import {
   Databases,
   ID,
   Query,
+  QueryTypesList,
 } from "react-native-appwrite";
 
 export const appwriteConfig = {
@@ -137,7 +138,9 @@ export async function signOut() {
 }
 
 // Create listing
-export async function createListing(props:  FormFieldProps & {images: string[]}) {
+export async function createListing(
+  props: FormFieldProps & { images: string[] }
+) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) throw Error;
@@ -185,7 +188,6 @@ export async function getVehicleListingById(id: string) {
   }
 }
 
-
 // messages page, get just the messages that are related to the current user
 export async function getMessages() {
   try {
@@ -195,16 +197,13 @@ export async function getMessages() {
     const messages = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.messagesCollectionId,
-   
 
-      // messages are sent to and from the current user
       [
         Query.or([
           Query.equal("userFrom", currentUser.$id),
           Query.equal("userTo", currentUser.$id),
         ]),
       ]
-
     );
 
     return messages;
@@ -239,6 +238,106 @@ export async function sendMessage({
     );
 
     return newMessage;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+}
+
+// get latest messages sent to the current user by all users
+export async function getLatestMessages() {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) throw Error;
+
+    const hasChatsWith = currentUser.hasChatsWith || [];
+
+    const messages = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.messagesCollectionId,
+      [
+        Query.or(
+          hasChatsWith
+            .map((user: string) => [
+              Query.and([
+                Query.equal("userFrom", user),
+                Query.equal("userTo", currentUser.$id),
+              ]),
+              Query.and([
+                Query.equal("userFrom", currentUser.$id),
+                Query.equal("userTo", user),
+              ]),
+            ])
+            .flat()
+        ),
+      ]
+    );
+
+    return messages;
+  } catch (error) {
+    throw new Error(error as string);
+  }
+}
+
+// startChat
+export async function startChat(userTo: string) {
+  try {
+    console.log("[StartingChatTo]", userTo);
+    const currentUser = await getCurrentUser();
+    if (!currentUser) throw Error;
+
+    // check if the current user has already started a chat with the userTo
+    const currentUserChatList = currentUser.hasChatsWith || [];
+    if (currentUserChatList.includes(userTo)) {
+      return;
+    }
+
+    /**
+     *   const currentUser = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("accountId", currentAccount.$id)]
+    );
+
+    if (!currentUser) throw Error;
+
+    return currentUser.documents[0];
+     */
+    // get the userTo user
+    // const userToUser = await databases.listDocuments(
+    //   appwriteConfig.databaseId,
+    //   appwriteConfig.userCollectionId,
+    //   [Query.equal("accountId", userTo)]
+    // );
+
+    // console.log("[userToUser]", userToUser);
+
+    // if (!userToUser) throw Error;
+
+    const startChat = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.messagesCollectionId,
+      ID.unique(),
+      {
+        userFrom: currentUser.$id,
+        userTo: userTo,
+        messagebody: "_startChat_",
+        timeSent: new Date().toISOString(),
+      }
+    );
+
+    console.log("[startChat]", startChat);
+
+    currentUserChatList.push(userTo);
+
+    await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      currentUser.$id,
+      {
+        hasChatsWith: currentUserChatList,
+      }
+    );
+    return startChat;
   } catch (error) {
     throw new Error(error as string);
   }

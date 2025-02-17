@@ -2,7 +2,7 @@ import { View, Text, SafeAreaView } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { getVehicleListingById } from "@/lib/appwrite";
-import ScooterCard, { ScooterCardProps } from "@/components/ScooterCard";
+import  { ScooterCardProps } from "@/components/ScooterCard";
 import { parseVehicleData } from "@/utils/utls";
 import VehiclePage from "@/components/VehiclePage";
 

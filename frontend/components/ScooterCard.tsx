@@ -8,12 +8,14 @@ import { TouchableOpacity, View } from "react-native";
 import { HStack } from "@/components/ui/hstack";
 import { router } from "expo-router";
 import { FormFieldProps } from "@/app/(tabs)/create";
+import { startChat } from "@/lib/appwrite";
 
 interface SellerProps {
   name: string;
   profilePicture: string;
   rating: number;
   ratingCount: number;
+  id: string;
 }
 
 export interface ScooterCardProps extends FormFieldProps {
@@ -63,6 +65,11 @@ const ScooterCard = ({
 }: ScooterCardProps) => {
   const handleViewListing = () => {
     router.navigate(`/listing/${listingId}`);
+  };
+
+  const handleStartChat = () => {
+    console.log("start chat, [SELLER]: ", seller);
+    startChat(seller.id);
   };
 
   return (
@@ -117,6 +124,14 @@ const ScooterCard = ({
         <TouchableOpacity onPress={handleViewListing}>
           <Text size="sm" className="text-primary-500 font-bold">
             View Listing
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <View className="flex justify-center items-center">
+        <TouchableOpacity onPress={handleStartChat}>
+          <Text size="sm" className="text-primary-500 font-bold">
+            Message Seller
           </Text>
         </TouchableOpacity>
       </View>

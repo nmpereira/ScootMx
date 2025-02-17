@@ -23,7 +23,7 @@ const home = () => {
           return parseVehicleData(doc);
         })
       );
-
+      console.log("[vehicleListings]", vehicleListings);
       setVehicleListings(vehicleListings);
     };
 
