@@ -361,11 +361,7 @@ export async function startChat(userTo: string) {
     );
 
     // update the userTo's chat list
-    const userToData = await databases.getDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
-      userTo
-    );
+    const userToData = await getUser(userTo);
 
     const userToChatList = userToData.hasChatsWith || [];
     userToChatList.push(currentUser.$id);
