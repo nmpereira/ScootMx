@@ -43,7 +43,7 @@ const home = () => {
           height: "80%",
         }}
       > */}
-      <View className="w-full flex justify-center items-center h-full px-4">
+      <View className="w-full flex justify-center items-center h-full px-4 border border-tertiary-500 rounded-lg max-w-[414px] mx-auto">
         <View className="w-80 flex flex-row  items-center justify-between">
           <Text className="text-3xl font-bold text-center text-tertiary-500 my-6">
             Rentals

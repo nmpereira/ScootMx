@@ -91,7 +91,7 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
       {/* Chat Header */}
       <View className="flex flex-row items-center gap-4 p-4 border border-tertiary-500 rounded-lg">
         <TouchableOpacity onPress={() => router.navigate("/messages")}>
-          <Text className="text-blue-500">Back</Text>
+          <Text className="text-blue-500 font-bold">Back</Text>
         </TouchableOpacity>
         <AvatarComponent
           name={nonCurrentUser?.username}

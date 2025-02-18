@@ -75,12 +75,12 @@ const CreateListing = () => {
     <SafeAreaView className="bg-background-900 h-full ">
       <View className="flex items-center h-full p-4">
         {/* Input Fields */}
-        <ScrollView className="h-full ">
-          <View className="mt-7 w-full">
-            {/* Header */}
             <Text className="text-2xl font-semibold text-tertiary-500 my-7 text-center">
               Create Listing
             </Text>
+        <ScrollView className="h-full border border-tertiary-500 rounded-lg p-4 max-w-[414px] w-full">
+          <View className="mt-7 w-full">
+            {/* Header */}
             <FormField
               title={"Title"}
               placeholder={"Enter title for vehicle"}
@@ -192,19 +192,19 @@ const CreateListing = () => {
         </ScrollView>
 
         {/* Photo Grid and Upload Button */}
-        <View className="my-7">
+        <View className="my-2 flex flex-row items-center gap-4">
           <PhotoUpload photoIds={photoIds} setPhotoIds={setPhotoIds} />
         </View>
-
         {/* Submit */}
         <CustomButton
           title={"Submit"}
           handlePress={submitListing}
-          containerStyles={"mt-7 bg-tertiary-500 w-64"}
+          containerStyles={"bg-tertiary-500 w-64"}
           textStyles={"text-white font-semibold"}
           isLoading={false}
           isEnabled={isSubmitEnabled}
         />
+
       </View>
     </SafeAreaView>
   );
