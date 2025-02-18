@@ -4,6 +4,7 @@ import React from "react";
 import { View, Image, Text } from "react-native";
 
 import { icons } from "../../constants";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
 const TabIcon = ({
   icon,
@@ -35,6 +36,7 @@ const TabIcon = ({
 };
 
 export default function TabLayout() {
+  const { isLogged } = useGlobalContext();
   return (
     <Tabs
       screenOptions={{
@@ -57,40 +59,47 @@ export default function TabLayout() {
             <TabIcon
               icon={icons.home}
               color={color}
-              name="Home"
+              name="Rentals"
               focused={focused}
             />
           ),
         }}
       />
-      <Tabs.Screen
-        name="create"
-        options={{
-          title: "create",
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              icon={icons.plus}
-              color={color}
-              name="create"
-              focused={focused}
-            />
-          ),
-        }}
-      />{" "}
-      <Tabs.Screen
-        name="messages"
-        options={{
-          title: "messages",
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              icon={icons.play}
-              color={color}
-              name="messages"
-              focused={focused}
-            />
-          ),
-        }}
-      />{" "}
+    
+        
+          <Tabs.Screen
+            name="create"
+            redirect={!isLogged}
+            options={{
+              
+              title: "create",
+              tabBarIcon: ({ color, focused }) => (
+                <TabIcon
+                  icon={icons.plus}
+                  color={color}
+                  name="create"
+                  focused={focused}
+                />
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="messages"
+            redirect={!isLogged}
+            options={{
+              title: "messages",
+              tabBarIcon: ({ color, focused }) => (
+                <TabIcon
+                  icon={icons.play}
+                  color={color}
+                  name="messages"
+                  focused={focused}
+                />
+              ),
+            }}
+          />
+        
+      
       <Tabs.Screen
         name="settings"
         options={{
