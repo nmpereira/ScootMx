@@ -15,6 +15,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@andordavoti/react-native-timeago": "^0.0.14",
     "@expo/html-elements": "^0.4.2",
     "@expo/vector-icons": "^14.0.2",
     "@gluestack-ui/actionsheet": "^0.2.46",

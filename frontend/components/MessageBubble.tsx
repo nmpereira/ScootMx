@@ -1,4 +1,5 @@
 import AvatarComponent from "@/components/AvatarComponent";
+import TimeAgo from "@andordavoti/react-native-timeago";
 import React from "react";
 import {
     Text,
@@ -45,12 +46,10 @@ const MessageBubble = ({
         >
           {message.messagebody}
         </Text>
-        <Text className="text-xs text-gray-500 text-right">
-          {new Intl.DateTimeFormat("en-US", {
-            hour: "numeric",
-            minute: "numeric",
-            hour12: true,
-          }).format(new Date(message.timeSent))}
+        <Text className="text-xs text-right text-tertiary-500 font-pbold">
+        <TimeAgo dateTo={new Date(
+          message.$createdAt
+        )} />
         </Text>
       </View>
       {sentByCurrentUser && (

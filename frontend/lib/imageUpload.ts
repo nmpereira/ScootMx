@@ -81,7 +81,7 @@ const handleImagePicked = async (
     return null;
   } catch (e) {
     console.error("[handleImagePicked] error ==>", e);
-    alert("Upload failed, sorry :(");
+    alert(`Upload failed, sorry :( ${e}`);
   } finally {
   }
 };

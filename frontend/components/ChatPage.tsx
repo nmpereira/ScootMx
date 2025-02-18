@@ -5,6 +5,7 @@ import { getChatPreviews } from "@/lib/appwrite";
 import { Models } from "react-native-appwrite";
 import AvatarComponent from "@/components/AvatarComponent";
 import { router } from "expo-router";
+import TimeAgo from "@andordavoti/react-native-timeago";
 import { GlobalContext, useGlobalContext } from "@/context/GlobalProvider";
 
 interface ChatPreview {
@@ -57,7 +58,8 @@ const ChatPage = () => {
                 {item.latestMessage?.messagebody}
               </Text>
 
-                {new Date(item.latestMessage?.$createdAt).toLocaleString()}
+              <Text className="ml-4 text-sm text-tertiary-500">
+                <TimeAgo dateTo={new Date(item.latestMessage?.$createdAt)} />
               </Text>
             </View>
           </TouchableOpacity>
