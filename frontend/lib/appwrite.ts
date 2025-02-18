@@ -1,6 +1,7 @@
 import { FormFieldProps } from "@/app/(tabs)/create";
 import messages from "@/app/(tabs)/messages";
 import { ScooterCardProps } from "@/components/ScooterCard";
+import { router } from "expo-router";
 import {
   Client,
   Account,
@@ -325,15 +326,17 @@ export async function getChatPreviews() {
 
 
 // startChat
-export async function startChat(userTo: string) {
+export async function startChat({
+  userTo, listingId
+}:{userTo: string, listingId: string}) {
   try {
-    console.log("[StartingChatTo]", userTo);
     const currentUser = await getCurrentUser();
     if (!currentUser) throw Error;
 
     // check if the current user has already started a chat with the userTo
     const currentUserChatList = currentUser.hasChatsWith || [];
     if (currentUserChatList.includes(userTo)) {
+      router.navigate(`/chats/${userTo}`);
       return;
     }
 
@@ -344,7 +347,7 @@ export async function startChat(userTo: string) {
       {
         userFrom: currentUser.$id,
         userTo: userTo,
-        messagebody: "_startChat_",
+        messagebody: `Hi there! 👋, I'm interested in your ad`,
         timeSent: new Date().toISOString(),
       }
     );
@@ -374,7 +377,8 @@ export async function startChat(userTo: string) {
         hasChatsWith: userToChatList,
       }
     );
-    return startChat;
+    
+    router.navigate(`/chats/${userTo}`);
   } catch (error) {
     throw new Error(error as string);
   }

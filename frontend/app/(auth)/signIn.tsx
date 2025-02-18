@@ -44,7 +44,7 @@ const SignIn = () => {
       setIsLogged(true);
 
       Alert.alert("Success", "User signed in successfully");
-      router.replace("/(tabs)");
+      router.replace("/");
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
     } finally {

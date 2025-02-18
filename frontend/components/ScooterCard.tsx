@@ -68,8 +68,7 @@ const ScooterCard = ({
   };
 
   const handleStartChat = () => {
-    console.log("start chat, [SELLER]: ", seller);
-    startChat(seller.id);
+    startChat({ userTo: seller.id, listingId });
   };
 
   return (
@@ -120,20 +119,28 @@ const ScooterCard = ({
         </Text>
       </VStack>
       {/* View listing */}
-      <View className="flex justify-center items-center">
-        <TouchableOpacity onPress={handleViewListing}>
-          <Text size="sm" className="text-primary-500 font-bold">
-            View Listing
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <View className="flex flex-row justify-between">
+        <View className="flex justify-center items-center">
+          <TouchableOpacity onPress={handleViewListing}>
+            <Text
+              size="sm"
+              className="text-primary-500 font-bold p-2 rounded-md bg-tertiary-500"
+            >
+              View Listing
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      <View className="flex justify-center items-center">
-        <TouchableOpacity onPress={handleStartChat}>
-          <Text size="sm" className="text-primary-500 font-bold">
-            Message Seller
-          </Text>
-        </TouchableOpacity>
+        <View className="flex justify-center items-center">
+          <TouchableOpacity onPress={handleStartChat}>
+            <Text
+              size="sm"
+              className="text-primary-500 font-bold  p-2 rounded-md bg-tertiary-500"
+            >
+              Message Seller
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </Card>
   );
