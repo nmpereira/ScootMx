@@ -52,7 +52,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "home",
+          title: "Rentals",
           tabBarIcon: ({ color, focused }) => (
             <TabIcon
               icon={icons.home}
@@ -63,20 +63,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="listings"
-        options={{
-          title: "listings",
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              icon={icons.search}
-              color={color}
-              name="Rentals"
-              focused={focused}
-            />
-          ),
-        }}
-      />{" "}
       <Tabs.Screen
         name="create"
         options={{
