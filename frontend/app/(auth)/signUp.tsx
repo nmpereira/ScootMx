@@ -29,24 +29,22 @@ const SignUp = () => {
   });
 
   const submit = async () => {
-   
     if (form.username === "" || form.email === "" || form.password === "") {
       AlertMessage({ message: "Please fill in all fields" });
     }
 
     setSubmitting(true);
     try {
-      
       const result = await createUser({
         email: form.email,
         password: form.password,
         username: form.username,
       });
-      
+
       setUser(result);
       setIsLogged(true);
 
-      router.replace("/(tabs)/listings");
+      router.replace("/(tabs)");
     } catch (error) {
       return AlertMessage({ error: error as Error });
     } finally {

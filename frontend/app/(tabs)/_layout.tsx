@@ -54,7 +54,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Rentals",
+          title: "rentals",
           tabBarIcon: ({ color, focused }) => (
             <TabIcon
               icon={icons.home}
