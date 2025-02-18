@@ -228,8 +228,6 @@ export async function getMessages(otherUser: string) {
       ]
     );
 
-
-
     return messages;
   } catch (error) {
     throw new Error(error as string);
@@ -266,7 +264,6 @@ export async function sendMessage({
     throw new Error(error as string);
   }
 }
-
 
 export async function getChatPreviews() {
   try {
@@ -314,9 +311,20 @@ export async function getChatPreviews() {
             Query.limit(1),
           ]
         );
+
         return { user: chatUser, latestMessage: messagesResponse.documents[0] };
       })
     );
+
+    chatPreviews.sort((a, b) => {
+      if (!a.latestMessage) return -1;
+      if (!b.latestMessage) return 1;
+
+      return (
+        new Date(b.latestMessage.timeSent).getTime() -
+        new Date(a.latestMessage.timeSent).getTime()
+      );
+    });
 
     return chatPreviews;
   } catch (error) {
@@ -324,11 +332,14 @@ export async function getChatPreviews() {
   }
 }
 
-
 // startChat
 export async function startChat({
-  userTo, listingId
-}:{userTo: string, listingId: string}) {
+  userTo,
+  listingId,
+}: {
+  userTo: string;
+  listingId: string;
+}) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) throw Error;
@@ -377,7 +388,7 @@ export async function startChat({
         hasChatsWith: userToChatList,
       }
     );
-    
+
     router.navigate(`/chats/${userTo}`);
   } catch (error) {
     throw new Error(error as string);
