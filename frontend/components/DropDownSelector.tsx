@@ -63,18 +63,17 @@ const DropDownSelector = ({
       <Select
         onValueChange={(value) => onSelectOption(value as SelectOptionTypes)}
         selectedValue={selectedOption}
-        className="border-tertiary-400 focus:border-none"
-        
+        // className="border-tertiary-400 focus:border-none"
       >
         <SelectTrigger variant="outline" size="xl" 
-        className="border-tertiary-400 focus:border-tertiary-400"
+        className="border-tertiary-400 focus:border-none"
         >
           <SelectInput placeholder="Select option" className="text-white" />
           <SelectIcon className="mr-3" as={ChevronDownIcon} />
         </SelectTrigger>
         <SelectPortal >
           <SelectBackdrop />
-          <SelectContent className="border-tertiary-400">
+          <SelectContent>
             <SelectDragIndicatorWrapper>
               <SelectDragIndicator />
             </SelectDragIndicatorWrapper>
