@@ -9,6 +9,7 @@ import { HStack } from "@/components/ui/hstack";
 import { router } from "expo-router";
 import { FormFieldProps } from "@/app/(tabs)/create";
 import { startChat } from "@/lib/appwrite";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
 interface SellerProps {
   name: string;
@@ -58,11 +59,17 @@ const ScooterCard = ({
   listingId,
   seller,
 }: ScooterCardProps) => {
+  const { isLogged } = useGlobalContext();
   const handleViewListing = () => {
     router.navigate(`/listing/${listingId}`);
   };
 
   const handleStartChat = () => {
+    if (!isLogged) {
+      router.navigate("/(auth)/signIn");
+      return;
+    }
+
     startChat({ userTo: seller.id, listingId });
   };
 
@@ -132,7 +139,7 @@ const ScooterCard = ({
               size="sm"
               className="text-primary-500 font-bold  p-2 rounded-md bg-tertiary-500"
             >
-              Message Seller
+              {isLogged ? "Message seller" : "Login to chat"}
             </Text>
           </TouchableOpacity>
         </View>
