@@ -24,7 +24,7 @@ export const appwriteConfig = {
   messagesCollectionId: "67b17849001499db151d",
 };
 
-const client = new Client()
+export const client = new Client()
   .setEndpoint(appwriteConfig.endpoint)
   .setProject(appwriteConfig.projectId)
   .setPlatform(appwriteConfig.platform);

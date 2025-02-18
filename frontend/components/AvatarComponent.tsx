@@ -1,8 +1,6 @@
 import {
   Avatar,
-  AvatarBadge,
-  AvatarFallbackText,
-  AvatarImage,
+  AvatarFallbackText
 } from "@/components/ui/avatar";
 
 interface AvatarComponentProps {

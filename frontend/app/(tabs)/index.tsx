@@ -4,7 +4,7 @@ import { FlatList, Text } from "react-native";
 import { View } from "react-native";
 import ScooterCard, { ScooterCardProps } from "@/components/ScooterCard";
 import EmptyState from "@/components/EmptyState";
-import { getVehicleListings } from "@/lib/appwrite";
+import { appwriteConfig, client, getVehicleListings } from "@/lib/appwrite";
 import { Models } from "react-native-appwrite";
 import { getFileView } from "@/lib/imageUpload";
 import { parseVehicleData } from "@/utils/utls";
@@ -28,6 +28,20 @@ const home = () => {
     };
 
     fetchListings();
+
+
+        const unsubscribe = client.subscribe(
+          `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
+          (response) => {
+            // Callback will be executed on all account events.
+            console.log("REALTIME", response);
+          }
+        );
+        console.log("UNSUBSCRIBE", unsubscribe);
+    
+        return () => {
+          unsubscribe();
+        };
   }, []);
 
   return (
