@@ -112,8 +112,8 @@ const CreateListing = () => {
             </View>
 
             <View className="w-1/4">
-              <Text className="text-white mb-4">Currency</Text>
               <DropDownSelector
+                title={"Currency"}
                 dropDownSelectorType={DropDownSelectorType.CURRENCY}
                 selectedOption={formFields.currency}
                 setSelectedOption={(option: SelectOptionTypes) => {
@@ -129,8 +129,8 @@ const CreateListing = () => {
           </View>
 
           <View className="mt-7 w-full">
-            <Text className="text-white mb-4">City</Text>
             <DropDownSelector
+              title={"City"}
               dropDownSelectorType={DropDownSelectorType.CITY}
               selectedOption={formFields.city as City}
               setSelectedOption={(option: SelectOptionTypes) => {
@@ -172,8 +172,8 @@ const CreateListing = () => {
             </View>
 
             <View className="w-2/5">
-              <Text className="text-white mb-4">Vehicle Type</Text>
               <DropDownSelector
+                title={"Vehicle Type"}
                 dropDownSelectorType={DropDownSelectorType.VEHICLE_TYPE}
                 selectedOption={formFields.vehicleType as VehicleType}
                 setSelectedOption={(option: SelectOptionTypes) => {
