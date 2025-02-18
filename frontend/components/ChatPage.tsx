@@ -48,9 +48,18 @@ const ChatPage = () => {
               name={item.user.username}
               imageUrl={item.user.avatar}
             />
-            <Text className="ml-4 text-lg font-semibold text-tertiary-500">
-              {item.user.username}
-            </Text>
+            <View className="flex flex-col">
+              <Text className="ml-4 text-lg font-semibold text-tertiary-500">
+                {item.user.username}
+              </Text>
+
+              <Text className="text-white ml-4 text-lg">
+                {item.latestMessage?.messagebody}
+              </Text>
+
+                {new Date(item.latestMessage?.$createdAt).toLocaleString()}
+              </Text>
+            </View>
           </TouchableOpacity>
         )}
         className="w-full"
