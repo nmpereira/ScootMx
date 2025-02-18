@@ -52,13 +52,8 @@ const SellerCard = ({
 const ScooterCard = ({
   title,
   images,
-  // datefrom,
-  // dateto,
   price,
   currency,
-  // vehicleType,
-  // vehicleRating,
-  // vehicleRatingCount,
   pickupLocation,
   listingId,
   seller,

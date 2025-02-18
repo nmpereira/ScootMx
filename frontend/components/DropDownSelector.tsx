@@ -24,6 +24,7 @@ export enum City {
   PLAYA_DEL_CARMEN = "Playa del Carmen",
 }
 
+
 export enum VehicleType {
   SCOOTER = "Scooter",
   ATV = "ATV",

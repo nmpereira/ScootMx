@@ -1,10 +1,29 @@
-import { View, Text, SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import React, { useEffect, useState } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { getVehicleListingById } from "@/lib/appwrite";
-import  { ScooterCardProps } from "@/components/ScooterCard";
+import { ScooterCardProps } from "@/components/ScooterCard";
 import { parseVehicleData } from "@/utils/utls";
-import VehiclePage from "@/components/VehiclePage";
+import { Avatar } from "@/components/ui/avatar";
+import AvatarComponent from "@/components/AvatarComponent";
+
+const DisplayDetail = ({ title, value }: { title: string; value: string }) => {
+  return (
+    <View className="flex flex-col items-start w-80 my-2">
+      <View className="flex flex-row items-center gap-4">
+        <Text className="text-white text-lg my-2">{title}</Text>
+        <Text className="text-tertiary-500 text-lg">{value}</Text>
+      </View>
+    </View>
+  );
+};
 
 const ListingPage = () => {
   const { listingId } = useLocalSearchParams();
@@ -26,20 +45,75 @@ const ListingPage = () => {
     setListing(listingData);
   };
 
+  const navigateToRenals = () => {
+    router.navigate("/");
+  };
+
   return (
     <SafeAreaView className="bg-background-950 h-full">
-      <View className="flex items-center h-full p-4">
-        <Text className="text-2xl font-semibold text-tertiary-500 my-7 text-center">
-          Listing Page
-        </Text>
-        <Text className="text-2xl font-semibold text-tertiary-500 my-7 text-center">
-          Listing ID: {listingId}
-        </Text>
+      <ScrollView className="h-full">
 
-        <View className="w-full flex justify-center items-center">
-          {listing ? <VehiclePage {...listing} /> : <Text>Loading...</Text>}
+      <View className="flex items-center h-full p-4">
+        {/* Back */}
+        <View className="w-80 flex flex-row  items-center justify-between">
+          <TouchableOpacity onPress={navigateToRenals}>
+            <Text className="text-blue-500 text-lg font-bold">Back</Text>
+          </TouchableOpacity>
+
+          {/* Title */}
+
+          <Text className="text-3xl font-bold text-tertiary-500 my-6">
+            {listing?.title}
+          </Text>
+
+          {/* Empty container */}
+          <View></View>
         </View>
+
+        {/* Image */}
+        <View className="w-80 h-80 bg-primary-500 rounded-lg">
+          <Image
+            source={{ uri: listing?.images[0] }}
+            className="w-full h-full rounded-xl"
+          />
+        </View>
+
+        {/* Seller */}
+        <View className="flex flex-col items-end my-8 justify-end w-80 border">
+          <AvatarComponent
+            name={listing?.seller.name || ""}
+            imageUrl={listing?.seller?.profilePicture || ""}
+          />
+          <Text className="text-white text-lg font-bold">
+            {listing?.seller.name}
+          </Text>
+          <View className="flex flex-row items-center">
+            <Text className="text-white text-lg">Rating: </Text>
+            <Text className="text-tertiary-500 text-lg">
+              {listing?.seller.rating}/5 ({listing?.seller.ratingCount})
+            </Text>
+          </View>
+        </View>
+
+        <DisplayDetail
+          title={"Price per day"}
+          value={`${listing?.currency} ${listing?.price}`}
+        />
+        <DisplayDetail title={"Location"} value={`${listing?.city}`} />
+        <DisplayDetail title={"Pickup"} value={`${listing?.pickupLocation}`} />
+
+        <DisplayDetail
+          title={"Engine Power (CC)"}
+          value={`${listing?.enginePower}`}
+        />
+
+        <DisplayDetail
+          title={"Vehicle Type"}
+          value={`${listing?.vehicleType}`}
+        />
       </View>
+      </ScrollView>
+
     </SafeAreaView>
   );
 };
