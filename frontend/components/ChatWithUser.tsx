@@ -21,7 +21,6 @@ import AvatarComponent from "@/components/AvatarComponent";
 import { router } from "expo-router";
 import MessageBubble from "./MessageBubble";
 
-
 const MessagePage = ({ otherUser }: { otherUser: string }) => {
   const { user } = useGlobalContext();
   const [nonCurrentUser, setNonCurrentUser] = useState<Models.Document | null>(
@@ -44,18 +43,46 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
   useEffect(() => {
     fetchNonCurrentUser();
     fetchMessages();
+  }, []);
 
+  useEffect(() => {
     const unsubscribe = client.subscribe(
       `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
-      (response) => {
-        // Callback will be executed on all account events.
-        console.log("REALTIME", response);
+      // payload is type Models.Document
+      ({
+        events,
+        payload,
+        channels,
+      }: {
+        events: string[];
+        payload: Models.Document;
+        channels: string[];
+      }) => {
+        if (events.includes("databases.*.collections.*.documents.*.create")) {
+          console.log("A MESSAGE WAS CREATED", payload);
+          // setMessages((prevState) => [payload, ...prevState]);
+          // set to the end of the list
+          setMessages((prevState) => [...prevState, payload]);
+          // Auto-scroll to the latest message
+          setTimeout(() => {
+            flatListRef.current?.scrollToEnd({ animated: true });
+            // scroll slight more to show the latest message
+          }, 200);
+        }
+
+        if (events.includes("databases.*.collections.*.documents.*.delete")) {
+          console.log("A MESSAGE WAS DELETED!!!");
+          // setMessages(prevState => prevState.filter(message => message.$id !== payload.$id))
+        }
       }
     );
-    console.log("UNSUBSCRIBE", unsubscribe);
+    console.log("SUBSCRIBED");
 
     return () => {
-      unsubscribe();
+      console.log("UNSUBSCRIBED");
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, []);
 

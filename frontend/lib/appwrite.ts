@@ -3,16 +3,22 @@ import messages from "@/app/(tabs)/messages";
 import { ScooterCardProps } from "@/components/ScooterCard";
 import { router } from "expo-router";
 import {
-  Client,
-  Account,
-  Avatars,
-  Storage,
-  Databases,
+  Client as RNClient,
+  Account as RNAccount,
+  Avatars as RNAvatars,
+  Storage as RNStorage,
+  Databases as RNDatabases,
   ID,
   Query,
-  QueryTypesList,
-  Models,
 } from "react-native-appwrite";
+import {
+  Client as WebClient,
+  Account as WebAccount,
+  Avatars as WebAvatars,
+  Storage as WebStorage,
+  Databases as WebDatabases,
+} from "appwrite";
+import { Platform } from "react-native";
 
 export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -25,15 +31,29 @@ export const appwriteConfig = {
   messagesCollectionId: "67b17849001499db151d",
 };
 
-export const client = new Client()
-  .setEndpoint(appwriteConfig.endpoint)
-  .setProject(appwriteConfig.projectId)
-  .setPlatform(appwriteConfig.platform);
+export const client = Platform.OS === "web" ? new WebClient() : new RNClient();
 
-const account = new Account(client);
-export const storage = new Storage(client);
-const avatars = new Avatars(client);
-const databases = new Databases(client);
+client
+  .setEndpoint(appwriteConfig.endpoint)
+  .setProject(appwriteConfig.projectId);
+// .setPlatform(appwriteConfig.platform);
+
+export const account =
+  Platform.OS === "web"
+    ? new WebAccount(client as WebClient)
+    : new RNAccount(client as RNClient);
+export const storage =
+  Platform.OS === "web"
+    ? new WebStorage(client as WebClient)
+    : new RNStorage(client as RNClient);
+export const avatars =
+  Platform.OS === "web"
+    ? new WebAvatars(client as WebClient)
+    : new RNAvatars(client as RNClient);
+export const databases =
+  Platform.OS === "web"
+    ? new WebDatabases(client as WebClient)
+    : new RNDatabases(client as RNClient);
 
 // Register user
 export async function createUser({
