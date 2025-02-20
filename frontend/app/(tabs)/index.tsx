@@ -5,6 +5,7 @@ import SortAndFilter from "@/components/SortAndFilter";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { getVehicleListings } from "@/lib/appwrite";
 import { parseVehicleData } from "@/utils/utls";
+import { S } from "@expo/html-elements";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
@@ -37,51 +38,53 @@ const home = () => {
   };
 
   return (
-    <View className="h-full bg-background-950">
-      <View className="w-full flex justify-center items-center h-full px-4 rounded-lg max-w-[414px] mx-auto">
-        <View className="w-80 flex flex-row  items-center justify-between">
-          <Text className="text-3xl font-bold text-center text-tertiary-500 my-6">
-            Rentals
-          </Text>
-          <View>
-            {isLogged ? (
-              <View className="flex flex-col items-center justify-center">
-                <TouchableOpacity onPress={navigateToSettings}>
-                  <AvatarComponent
-                    name={user?.username}
-                    imageUrl={user?.avatar}
-                  />
+    <SafeAreaView className="bg-background-950 pt-4">
+      <View className="h-full bg-background-950">
+        <View className="w-full flex justify-center items-center h-full px-4 rounded-lg max-w-[414px] mx-auto">
+          <View className="w-80 flex flex-row  items-center justify-between">
+            <Text className="text-3xl font-bold text-center text-tertiary-500 my-6">
+              Rentals
+            </Text>
+            <View>
+              {isLogged ? (
+                <View className="flex flex-col items-center justify-center">
+                  <TouchableOpacity onPress={navigateToSettings}>
+                    <AvatarComponent
+                      name={user?.username}
+                      imageUrl={user?.avatar}
+                    />
+                  </TouchableOpacity>
+                  <Text className="text-white text-sm">
+                    Welcome, {user?.username}
+                  </Text>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => router.navigate("/(auth)/signIn")}
+                >
+                  <Text className="text-white text-sm bg-primary-500 p-2 rounded-md">
+                    Login
+                  </Text>
                 </TouchableOpacity>
-                <Text className="text-white text-sm">
-                  Welcome, {user?.username}
-                </Text>
-              </View>
-            ) : (
-              <TouchableOpacity
-                onPress={() => router.navigate("/(auth)/signIn")}
-              >
-                <Text className="text-white text-sm bg-primary-500 p-2 rounded-md">
-                  Login
-                </Text>
-              </TouchableOpacity>
-            )}
+              )}
+            </View>
           </View>
+          <FlatList
+            data={vehicleListings}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => <ScooterCard {...item} />}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            className="w-full"
+            ListEmptyComponent={() => (
+              <EmptyState
+                title="No Rentals Found"
+                subtitle="No rentals found for the selected dates."
+              />
+            )}
+          />
         </View>
-        <FlatList
-          data={vehicleListings}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => <ScooterCard {...item} />}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          className="w-full"
-          ListEmptyComponent={() => (
-            <EmptyState
-              title="No Rentals Found"
-              subtitle="No rentals found for the selected dates."
-            />
-          )}
-        />
       </View>
-      </View>
+    </SafeAreaView>
   );
 };
 

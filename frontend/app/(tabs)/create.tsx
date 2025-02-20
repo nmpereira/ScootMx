@@ -72,7 +72,7 @@ const CreateListing = () => {
   }, [formFields]);
 
   return (
-    <SafeAreaView className="bg-background-900 h-full ">
+    <SafeAreaView className="bg-background-900 h-full pt-4">
       <View className="flex items-center h-full p-4">
         {/* Input Fields */}
             <Text className="text-2xl font-semibold text-tertiary-500 my-7 text-center">

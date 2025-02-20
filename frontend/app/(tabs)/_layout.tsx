@@ -39,7 +39,7 @@ const TabIcon = ({
 export default function TabLayout() {
   const { isLogged } = useGlobalContext();
   return (
-    <SafeAreaView className="h-full">
+   
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: "#FFA001",
@@ -114,6 +114,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </SafeAreaView>
+  
   );
 }
