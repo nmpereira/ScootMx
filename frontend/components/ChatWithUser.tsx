@@ -20,6 +20,7 @@ import { Models } from "react-native-appwrite";
 import AvatarComponent from "@/components/AvatarComponent";
 import { router } from "expo-router";
 import MessageBubble from "./MessageBubble";
+import { subscribeToChannel } from "@/lib/appWriteChat";
 
 const MessagePage = ({ otherUser }: { otherUser: string }) => {
   const { user } = useGlobalContext();
@@ -46,45 +47,38 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = client.subscribe(
-      `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
-      // payload is type Models.Document
-      ({
-        events,
-        payload,
-        channels,
-      }: {
-        events: string[];
-        payload: Models.Document;
-        channels: string[];
-      }) => {
-        if (events.includes("databases.*.collections.*.documents.*.create")) {
-          console.log("A MESSAGE WAS CREATED", payload);
-          // setMessages((prevState) => [payload, ...prevState]);
-          // set to the end of the list
-          setMessages((prevState) => [...prevState, payload]);
-          // Auto-scroll to the latest message
-          setTimeout(() => {
-            flatListRef.current?.scrollToEnd({ animated: true });
-            // scroll slight more to show the latest message
-          }, 200);
-        }
-
-        if (events.includes("databases.*.collections.*.documents.*.delete")) {
-          console.log("A MESSAGE WAS DELETED!!!");
-          // setMessages(prevState => prevState.filter(message => message.$id !== payload.$id))
-        }
-      }
-    );
-    console.log("SUBSCRIBED");
+    console.log("subscribing to channel, messages");
+    subscribeToChannel({
+      channels: [
+        `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
+      ],
+      setMessages,
+      user: user!,
+    });
 
     return () => {
-      console.log("UNSUBSCRIBED");
-      if (unsubscribe) {
-        unsubscribe();
-      }
+      console.log("unsubscribing from channel, messages");
+      subscribeToChannel({
+        channels: [
+          `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
+        ],
+        setMessages,
+        user: user!,
+      });
     };
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+      // setTimeout(() => {
+      //   flatListRef.current?.scrollToOffset({
+      //     offset: 50, // Small adjustment
+      //     animated: true,
+      //   });
+      // }, 100);
+    }, 200);
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -99,15 +93,6 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
 
     await sendMessage(messageData);
     setNewMessage("");
-    // fetchMessages(); // Refresh messages after sending
-
-    // Auto-scroll to the latest message
-    // setTimeout(() => {
-    //   flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
-    // }, 200);
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 200);
   };
 
   return (

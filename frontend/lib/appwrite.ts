@@ -17,6 +17,7 @@ import {
   Avatars as WebAvatars,
   Storage as WebStorage,
   Databases as WebDatabases,
+  Models,
 } from "appwrite";
 import { Platform } from "react-native";
 
@@ -245,8 +246,13 @@ export async function getMessages(otherUser: string) {
             Query.equal("userTo", currentUser.$id),
           ]),
         ]),
+        Query.orderDesc("$createdAt"),
+        Query.limit(25),
+        
       ]
     );
+
+    messages.documents.reverse();
 
     return messages;
   } catch (error) {

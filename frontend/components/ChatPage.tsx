@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
 
-import { getChatPreviews } from "@/lib/appwrite";
+import { appwriteConfig, client, getChatPreviews } from "@/lib/appwrite";
 import { Models } from "react-native-appwrite";
 import AvatarComponent from "@/components/AvatarComponent";
 import { router } from "expo-router";
 import TimeAgo from "@andordavoti/react-native-timeago";
 import { GlobalContext, useGlobalContext } from "@/context/GlobalProvider";
+import { subscribeToChannel } from "@/lib/appWriteChat";
 
-interface ChatPreview {
+export interface ChatPreview {
   user: Models.Document;
   latestMessage: Models.Document;
 }
 
 const ChatPage = () => {
+  const { user } = useGlobalContext();
   const [chatList, setChatList] = useState<ChatPreview[]>([]);
 
   const fetchChatList = async () => {
@@ -24,6 +26,28 @@ const ChatPage = () => {
 
   useEffect(() => {
     fetchChatList();
+  }, []);
+
+  useEffect(() => {
+    console.log("subscribing to channel, chatList");
+    subscribeToChannel({
+      channels: [
+        `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
+      ],
+      setChatList,
+      user: user!,
+    });
+
+    return () => {
+      console.log("unsubscribing from channel, chatList");
+      subscribeToChannel({
+        channels: [
+          `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
+        ],
+        setChatList,
+        user: user!,
+      });
+    };
   }, []);
 
   const goToUserChat = (item: Models.Document) => {
