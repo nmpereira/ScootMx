@@ -1,13 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import AvatarComponent from "@/components/AvatarComponent";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import {
   appwriteConfig,
@@ -16,11 +7,19 @@ import {
   getUser,
   sendMessage,
 } from "@/lib/appwrite";
-import { Models } from "react-native-appwrite";
-import AvatarComponent from "@/components/AvatarComponent";
 import { router } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Models } from "react-native-appwrite";
 import MessageBubble from "./MessageBubble";
-import { subscribeToChannel } from "@/lib/appWriteChat";
 
 const MessagePage = ({ otherUser }: { otherUser: string }) => {
   const { user } = useGlobalContext();
@@ -48,37 +47,29 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
 
   useEffect(() => {
     console.log("subscribing to channel, messages");
-    subscribeToChannel({
-      channels: [
-        `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
-      ],
-      setMessages,
-      user: user!,
-    });
+    const unsubscribe = client.subscribe(
+      `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
+      ({
+        events,
+        payload,
+        channels,
+      }: {
+        events: string[];
+        payload: Models.Document;
+        channels: string[];
+      }) => {
+        if (events.includes("databases.*.collections.*.documents.*.create")) {
+          console.log("A MESSAGE WAS CREATED", payload);
+          setMessages((prevState) => [...prevState, payload]);
+        }
+      }
+    );
 
     return () => {
       console.log("unsubscribing from channel, messages");
-      subscribeToChannel({
-        channels: [
-          `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
-        ],
-        setMessages,
-        user: user!,
-      });
+      unsubscribe();
     };
   }, []);
-
-  useEffect(() => {
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-      // setTimeout(() => {
-      //   flatListRef.current?.scrollToOffset({
-      //     offset: 50, // Small adjustment
-      //     animated: true,
-      //   });
-      // }, 100);
-    }, 200);
-  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -128,6 +119,18 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
         )}
         contentContainerStyle={{ paddingBottom: 10 }}
         className="mb-14 border border-tertiary-500 rounded-lg p-4"
+        // onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
+        onContentSizeChange={
+          (width, height) =>
+            flatListRef.current?.scrollToOffset({
+              offset: height,
+              animated: false,
+            })
+
+          // setTimeout(() => {
+          //   flatListRef.current?.scrollToOffset({ offset: height, animated: false })
+          // }, 100)
+        }
       />
 
       {/* Message Input */}

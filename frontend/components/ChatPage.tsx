@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 
-import { appwriteConfig, client, getChatPreviews } from "@/lib/appwrite";
-import { Models } from "react-native-appwrite";
 import AvatarComponent from "@/components/AvatarComponent";
-import { router } from "expo-router";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { appwriteConfig, client, getChatPreviews } from "@/lib/appwrite";
 import TimeAgo from "@andordavoti/react-native-timeago";
-import { GlobalContext, useGlobalContext } from "@/context/GlobalProvider";
-import { subscribeToChannel } from "@/lib/appWriteChat";
+import { router } from "expo-router";
+import { Models } from "react-native-appwrite";
 
 export interface ChatPreview {
   user: Models.Document;
@@ -30,23 +29,45 @@ const ChatPage = () => {
 
   useEffect(() => {
     console.log("subscribing to channel, chatList");
-    subscribeToChannel({
-      channels: [
-        `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
-      ],
-      setChatList,
-      user: user!,
-    });
+    const unsubscribe = client.subscribe(
+      `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
+      ({
+        events,
+        payload,
+        channels,
+      }: {
+        events: string[];
+        payload: Models.Document;
+        channels: string[];
+      }) => {
+        if (events.includes("databases.*.collections.*.documents.*.create")) {
+          console.log("A MESSAGE WAS CREATED", payload);
+          setChatList((prevState) => {
+            const newChatList = prevState.map((chat) => {
+              //   get non-current user from payload, its either userFrom or userTo
+              const otherUser =
+                payload.userFrom.$id === user!.$id
+                  ? payload.userTo
+                  : payload.userFrom;
+
+              // update the chat for the other user
+              if (chat.user.$id === otherUser.$id) {
+                return {
+                  ...chat,
+                  latestMessage: payload,
+                };
+              }
+              return chat;
+            });
+            return newChatList;
+          });
+        }
+      }
+    );
 
     return () => {
       console.log("unsubscribing from channel, chatList");
-      subscribeToChannel({
-        channels: [
-          `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.messagesCollectionId}.documents`,
-        ],
-        setChatList,
-        user: user!,
-      });
+      unsubscribe();
     };
   }, []);
 
