@@ -82,13 +82,18 @@ const ChatPage = () => {
 
   return (
     <View className="flex-1 bg-background-950 w-full max-w-[414px] border border-primary-500 h-full">
+         <View className="p-4 border border-tertiary-500 rounded-lg">
+            <Text className="text-2xl font-semibold text-tertiary-500">
+              Chats
+            </Text>
+          </View>
       <FlatList
         data={chatList}
         keyExtractor={(item) => item.user.$id}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => goToUserChat(item.user)}
-            className="flex flex-row items-center p-4 border border-tertiary-500"
+            className="flex flex-row items-center p-4 border border-tertiary-500 rounded-lg my-2"
           >
             <AvatarComponent
               name={item.user.username}
@@ -99,9 +104,16 @@ const ChatPage = () => {
                 {item.user.username}
               </Text>
 
-              <Text className="text-white ml-4 text-lg">
-                {item.latestMessage?.messagebody}
-              </Text>
+              <View className="flex flex-row items-center">
+                <Text className="ml-4 text-lg font-semibold text-tertiary-500">
+                  {item.latestMessage?.userFrom.$id === user?.$id
+                    ? "You"
+                    : item.latestMessage?.userFrom.username}:
+                </Text>
+                <Text className="text-white ml-4 text-lg truncate w-52 overflow-ellipsis max-h-16">
+                  {item.latestMessage?.messagebody}
+                </Text>
+              </View>
 
               <Text className="ml-4 text-sm text-tertiary-500">
                 <TimeAgo dateTo={new Date(item.latestMessage?.$createdAt)} />
@@ -110,13 +122,7 @@ const ChatPage = () => {
           </TouchableOpacity>
         )}
         className="w-full"
-        ListHeaderComponent={
-          <View className="p-4 border-b border-tertiary-500">
-            <Text className="text-2xl font-semibold text-tertiary-500">
-              Chats
-            </Text>
-          </View>
-        }
+       
       />
     </View>
   );

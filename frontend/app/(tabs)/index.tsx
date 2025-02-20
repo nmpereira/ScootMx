@@ -37,13 +37,8 @@ const home = () => {
   };
 
   return (
-    <SafeAreaView className="bg-background-950 h-full">
-      {/* <ScrollView
-        contentContainerStyle={{
-          height: "80%",
-        }}
-      > */}
-      <View className="w-full flex justify-center items-center h-full px-4 border border-tertiary-500 rounded-lg max-w-[414px] mx-auto">
+    <View className="h-full bg-background-950">
+      <View className="w-full flex justify-center items-center h-full px-4 rounded-lg max-w-[414px] mx-auto">
         <View className="w-80 flex flex-row  items-center justify-between">
           <Text className="text-3xl font-bold text-center text-tertiary-500 my-6">
             Rentals
@@ -76,24 +71,8 @@ const home = () => {
           data={vehicleListings}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => <ScooterCard {...item} />}
-          ListHeaderComponent={() => (
-            <>
-              <View className="flex my-6 px-4">
-                {/* <Text className="font-pmedium text-gray-100 text-sm">
-                  Search Results
-                </Text>
-                <Text className="text-2xl font-psemibold text-white mt-1">
-                  Scooters, ATVs, E-Bikes Rentals & More
-                </Text> */}
-
-                <View className="">
-                  {/* <SearchInput initialQuery={query} refetch={refetch} /> */}
-                  {/* button for filter and sort */}
-                  <SortAndFilter />
-                </View>
-              </View>
-            </>
-          )}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          className="w-full"
           ListEmptyComponent={() => (
             <EmptyState
               title="No Rentals Found"
@@ -102,8 +81,7 @@ const home = () => {
           )}
         />
       </View>
-      {/* </ScrollView> */}
-    </SafeAreaView>
+      </View>
   );
 };
 

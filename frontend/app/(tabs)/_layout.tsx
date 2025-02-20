@@ -5,6 +5,7 @@ import { View, Image, Text } from "react-native";
 
 import { icons } from "../../constants";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const TabIcon = ({
   icon,
@@ -38,82 +39,81 @@ const TabIcon = ({
 export default function TabLayout() {
   const { isLogged } = useGlobalContext();
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: "#FFA001",
-        tabBarInactiveTintColor: "#CDCDE0",
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          backgroundColor: "#161622",
-          borderTopWidth: 0,
-          height: 50,
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "rentals",
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              icon={icons.home}
-              color={color}
-              name="Rentals"
-              focused={focused}
-            />
-          ),
+    <SafeAreaView className="h-full">
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: "#FFA001",
+          tabBarInactiveTintColor: "#CDCDE0",
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle: {
+            backgroundColor: "#161622",
+            borderTopWidth: 0,
+            height: 50,
+          },
         }}
-      />
-    
-        
-          <Tabs.Screen
-            name="create"
-            redirect={!isLogged}
-            options={{
-              
-              title: "create",
-              tabBarIcon: ({ color, focused }) => (
-                <TabIcon
-                  icon={icons.plus}
-                  color={color}
-                  name="create"
-                  focused={focused}
-                />
-              ),
-            }}
-          />
-          <Tabs.Screen
-            name="messages"
-            redirect={!isLogged}
-            options={{
-              title: "messages",
-              tabBarIcon: ({ color, focused }) => (
-                <TabIcon
-                  icon={icons.play}
-                  color={color}
-                  name="messages"
-                  focused={focused}
-                />
-              ),
-            }}
-          />
-        
-      
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "settings",
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              icon={icons.menu}
-              color={color}
-              name="Settings"
-              focused={focused}
-            />
-          ),
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "rentals",
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.home}
+                color={color}
+                name="Rentals"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="create"
+          redirect={!isLogged}
+          options={{
+            title: "create",
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.plus}
+                color={color}
+                name="create"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="messages"
+          redirect={!isLogged}
+          options={{
+            title: "messages",
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.play}
+                color={color}
+                name="messages"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: "settings",
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.menu}
+                color={color}
+                name="Settings"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+      </Tabs>
+    </SafeAreaView>
   );
 }

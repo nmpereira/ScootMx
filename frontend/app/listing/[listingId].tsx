@@ -51,9 +51,9 @@ const ListingPage = () => {
 
   return (
     <SafeAreaView className="bg-background-950 h-full">
-      <ScrollView className="h-full ">
+      <ScrollView className="h-full">
 
-      <View className="flex items-center h-full p-4 border border-tertiary-500 rounded-lg max-w-[414px] mx-auto">
+      <View className="flex items-center h-full p-4 border border-tertiary-500 rounded-lg max-w-[414px] mx-auto ">
         {/* Back */}
         <View className="w-80 flex flex-row  items-center justify-between">
           <TouchableOpacity onPress={navigateToRenals}>
