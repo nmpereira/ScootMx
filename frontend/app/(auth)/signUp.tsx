@@ -55,20 +55,15 @@ const SignUp = () => {
   return (
     <SafeAreaView className="bg-background-dark h-full">
       <ScrollView>
-        <View
-          className="w-full flex justify-center h-full px-4 my-6"
-          style={{
-            minHeight: Dimensions.get("window").height - 100,
-          }}
-        >
+        <View className="w-full h-full flex justify-center h-full px-4 mb-10">
           <View className="w-full flex justify-center items-center">
             <Image
               source={images.scooterIconText}
               resizeMode="contain"
-              className="w-[115px] h-[34px]"
+              className="max-w-[125px] max-h-[125px] mt-4"
             />
 
-            <Text className="text-2xl font-semibold text-white mt-10 font-psemibold">
+            <Text className="text-2xl font-semibold text-white mt-4 font-psemibold">
               Sign Up to ScootMx
             </Text>
             <View className="w-full flex flex-col items-center">
@@ -78,7 +73,7 @@ const SignUp = () => {
                 handleChangeText={(e: string) =>
                   setForm({ ...form, username: e })
                 }
-                otherStyles="mt-10 w-96"
+                otherStyles="mt-7 w-96"
                 placeholder={""}
               />
 
