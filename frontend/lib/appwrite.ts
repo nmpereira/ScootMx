@@ -248,7 +248,6 @@ export async function getMessages(otherUser: string) {
         ]),
         Query.orderDesc("$createdAt"),
         Query.limit(25),
-        
       ]
     );
 

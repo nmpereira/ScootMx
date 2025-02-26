@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
-
-import { icons } from "../constants";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Feather from "@expo/vector-icons/Feather";
 
 interface FormFieldProps {
   title: string;
@@ -11,6 +11,7 @@ interface FormFieldProps {
   otherStyles?: string;
   keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
   suffix?: string;
+  validationText?: string;
 }
 
 const FormField = ({
@@ -20,6 +21,7 @@ const FormField = ({
   handleChangeText,
   otherStyles,
   suffix,
+  validationText,
   ...props
 }: FormFieldProps) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -41,10 +43,10 @@ const FormField = ({
 
         {title === "Password" && (
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Image
-              source={!showPassword ? icons.eye : icons.eyeHide}
-              className="max-w-6 max-h-6"
-              resizeMode="contain"
+            <Feather
+              name={!showPassword ? "eye" : "eye-off"}
+              size={24}
+              color="#7B7B8B"
             />
           </TouchableOpacity>
         )}
@@ -55,6 +57,15 @@ const FormField = ({
           </Text>
         )}
       </View>
+      {/* Validation text with icon*/}
+      {validationText && (
+        <View className="flex flex-row items-center pl-2 gap-1">
+          <AntDesign name="exclamationcircle" size={16} color="#FF0000" />
+          <Text className="text-xs text-red-500 font-psemibold">
+            {validationText}
+          </Text>
+        </View>
+      )}
     </View>
   );
 };

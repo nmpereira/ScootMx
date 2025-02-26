@@ -18,6 +18,7 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 import CustomButton from "@/components/CustomButton";
 import FormField from "@/components/FormField";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import AlertMessage from "@/components/Alert";
 
 const SignIn = () => {
   const { setUser, setIsLogged } = useGlobalContext();
@@ -29,7 +30,8 @@ const SignIn = () => {
 
   const submit = async () => {
     if (form.email === "" || form.password === "") {
-      Alert.alert("Error", "Please fill in all fields");
+      AlertMessage({ message: "Please fill in all fields" });
+      return;
     }
 
     setSubmitting(true);
@@ -39,14 +41,16 @@ const SignIn = () => {
         email: form.email,
         password: form.password,
       });
+
       const result = await getCurrentUser();
       setUser(result);
       setIsLogged(true);
 
-      Alert.alert("Success", "User signed in successfully");
+      AlertMessage({ message: "Logged in successfully" });
       router.replace("/");
     } catch (error) {
-      Alert.alert("Error", (error as Error).message);
+      // Alert.alert("Error", (error as Error).message);
+      AlertMessage({ error: error as Error });
     } finally {
       setSubmitting(false);
     }
