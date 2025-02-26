@@ -26,7 +26,6 @@ const home = () => {
           return parseVehicleData(doc);
         })
       );
-      console.log("[vehicleListings]", vehicleListings);
       setVehicleListings(vehicleListings);
     };
 
@@ -38,7 +37,7 @@ const home = () => {
   };
 
   return (
-    <SafeAreaView className="bg-background-950 pt-4">
+    <SafeAreaView className="bg-background-950 pt-4 h-full">
       <View className="h-full bg-background-950">
         <View className="w-full flex justify-center items-center h-full px-4 rounded-lg max-w-[414px] mx-auto">
           <View className="w-80 flex flex-row  items-center justify-between">

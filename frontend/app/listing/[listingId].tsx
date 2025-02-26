@@ -79,7 +79,7 @@ const ListingPage = () => {
         </View>
 
         {/* Seller */}
-        <View className="flex flex-col items-end my-8 justify-end w-80 border">
+        <View className="flex flex-col items-end my-8 justify-end w-80">
           <AvatarComponent
             name={listing?.seller.name || ""}
             imageUrl={listing?.seller?.profilePicture || ""}
