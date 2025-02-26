@@ -20,6 +20,7 @@ import {
   Models,
 } from "appwrite";
 import { Platform } from "react-native";
+import { MessageDocumentDB, UserDocumentDB } from "@/types/dbTypes";
 
 export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -226,8 +227,22 @@ export async function getVehicleListingById(id: string) {
   }
 }
 
+const getNonCurrentUserFromMessages = (
+  message: MessageDocumentDB,
+  currentUser: UserDocumentDB
+) => {
+  return message.userFrom.$id === currentUser.$id
+    ? message.userTo
+    : message.userFrom;
+};
+
 // messages page, get just the messages that are related to the current user
-export async function getMessages(otherUser: string) {
+export async function getMessages(otherUser: string): Promise<{
+  documents: MessageDocumentDB[];
+  total: number;
+  currentUser: UserDocumentDB;
+  nonCurrentUser: UserDocumentDB;
+}> {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) throw Error;
@@ -251,12 +266,18 @@ export async function getMessages(otherUser: string) {
       ]
     );
 
-    messages.documents.reverse();
+    // messages.documents.reverse();
+
+    const nonCurrentUser = getNonCurrentUserFromMessages(
+      messages.documents[0] as MessageDocumentDB,
+      currentUser as UserDocumentDB
+    );
 
     return {
-      documents: messages.documents,
+      documents: messages.documents as MessageDocumentDB[],
       total: messages.total,
-      currentUser,
+      currentUser: currentUser as UserDocumentDB,
+      nonCurrentUser: nonCurrentUser as UserDocumentDB,
     };
   } catch (error) {
     throw new Error(error as string);

@@ -24,25 +24,25 @@ export enum DropDownSelectorType {
 export type SelectOptionTypes = Currency | City | VehicleType;
 
 export interface MessageDocumentDB {
-  $collectionId: string;
   $createdAt: string;
+  $updatedAt: string;
+  timeSent: string;
+  $collectionId: string;
   $databaseId: string;
   $id: string;
   $permissions: string[];
-  $updatedAt: string;
   messagebody: string;
-  timeSent: string;
   userFrom: UserDocumentDB;
   userTo: UserDocumentDB;
 }
 
 export interface UserDocumentDB {
-  $collectionId: string;
   $createdAt: string;
+  $updatedAt: string;
+  $collectionId: string;
   $databaseId: string;
   $id: string;
   $permissions: string[];
-  $updatedAt: string;
   accountId: string;
   avatar: string;
   email: string;
