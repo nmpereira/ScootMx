@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
 
 import { images } from "../../constants";
@@ -27,7 +28,7 @@ const SignIn = () => {
     email: "",
     password: "",
   });
-
+  const passwordRef = useRef<TextInput>(null);
   const submit = async () => {
     if (form.email === "" || form.password === "") {
       AlertMessage({ message: "Please fill in all fields" });
@@ -77,7 +78,8 @@ const SignIn = () => {
                 handleChangeText={(e: string) => setForm({ ...form, email: e })}
                 otherStyles="mt-7 w-96"
                 keyboardType="email-address"
-                placeholder={""}
+                placeholder=""
+                onSubmitEditing={() => passwordRef?.current?.focus()} // Move to password field on Enter
               />
 
               <FormField
@@ -87,7 +89,9 @@ const SignIn = () => {
                   setForm({ ...form, password: e })
                 }
                 otherStyles="mt-7 w-96"
-                placeholder={""}
+                placeholder=""
+                onSubmitEditing={submit} // Submit form when Enter is pressed
+                ref={passwordRef}
               />
             </View>
             <CustomButton
