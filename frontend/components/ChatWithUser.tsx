@@ -135,104 +135,33 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
     setNewMessage("");
   };
 
-  //   return (
-  //     <KeyboardAvoidingView
-  //       behavior={Platform.OS === "ios" ? "padding" : "height"}
-  //       className="flex-1 p-4 w-full max-w-[414px]"
-  //     >
-  //       {/* Chat Header */}
-        // <View className="flex flex-row items-center gap-4 p-4 border border-tertiary-500 rounded-lg">
-        //   <TouchableOpacity onPress={() => router.navigate("/messages")}>
-        //     <Text className="text-blue-500 font-bold">Back</Text>
-        //   </TouchableOpacity>
-        //   <AvatarComponent
-        //     name={nonCurrentUser?.username}
-        //     imageUrl={nonCurrentUser?.avatar}
-        //   />
-        //   <Text className="text-2xl font-semibold text-tertiary-500">
-        //     {nonCurrentUser?.username || "Chat"}
-        //   </Text>
-        // </View>
-
-  //       {/* Chat Messages */}
-
-  //       <FlatList
-  //         ref={flatListRef}
-  //         data={messages}
-  //         keyExtractor={(item) => item.$id}
-  //         renderItem={({ item }) => (
-  //           <MessageBubble
-  //             message={item}
-  //             sentByCurrentUser={user?.$id === item.userFrom.$id}
-  //           />
-  //         )}
-  //         contentContainerStyle={{ paddingBottom: 10 }}
-  //         className="mb-14 border border-tertiary-500 rounded-lg p-4"
-  //         // onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-  //         onContentSizeChange={
-  //           (width, height) =>
-  //             flatListRef.current?.scrollToOffset({
-  //               offset: height,
-  //               animated: false,
-  //             })
-
-  //           // setTimeout(() => {
-  //           //   flatListRef.current?.scrollToOffset({ offset: height, animated: false })
-  //           // }, 100)
-  //         }
-  //       />
-
-  //       {/* Message Input */}
-  //       <View className="absolute bottom-0 left-0 w-full flex flex-row items-center p-3">
-  //         <TextInput
-  //           value={newMessage}
-  //           onChangeText={setNewMessage}
-  //           placeholder="Type a message..."
-  //           className="flex-1 p-2 border rounded-lg bg-gray-100"
-  //           multiline
-  //         />
-  //         <TouchableOpacity
-  //           onPress={handleSendMessage}
-  //           className="ml-3 p-3 bg-blue-500 rounded-lg"
-  //         >
-  //           <Text className="text-white font-semibold">Send</Text>
-  //         </TouchableOpacity>
-  //       </View>
-  //     </KeyboardAvoidingView>
-  //   );
-
   return (
-    // <KeyboardAvoidingView
-    //   behavior={Platform.OS === "ios" ? "padding" : "height"}
-    //   className="flex-1 p-4 w-full max-w-[414px]"
-    // >
-      <View className="bg-background-light flex-1 w-full max-w-[414px] rounded-lg">
+    <View className="bg-background-light flex-1 w-full max-w-[414px] rounded-lg">
       <View className="flex flex-row items-center gap-4 p-4 border border-tertiary-500 rounded-lg">
-          <TouchableOpacity onPress={() => router.navigate("/messages")}>
-            <Text className="text-blue-500 font-bold">Back</Text>
-          </TouchableOpacity>
-          <AvatarComponent
-            name={usersInChat.nonCurrentUser?.username}
-            imageUrl={usersInChat.nonCurrentUser?.avatar}
-          />
-          <Text className="text-2xl font-semibold text-tertiary-500">
-            {usersInChat.nonCurrentUser?.username || "Chat"}
-          </Text>
-        </View>
-        
-        <GiftedChat
-          messages={messages}
-          onSend={handleSendMessage}
-          user={{
-            _id: usersInChat.currentUser?.$id as string,
-            name: usersInChat.currentUser?.username,
-            avatar: usersInChat.currentUser?.avatar,
-          }}
-          renderUsernameOnMessage
-          alwaysShowSend
+        <TouchableOpacity onPress={() => router.navigate("/messages")}>
+          <Text className="text-blue-500 font-bold">Back</Text>
+        </TouchableOpacity>
+        <AvatarComponent
+          name={usersInChat.nonCurrentUser?.username}
+          imageUrl={usersInChat.nonCurrentUser?.avatar}
         />
+        <Text className="text-2xl font-semibold text-tertiary-500">
+          {usersInChat.nonCurrentUser?.username || "Chat"}
+        </Text>
       </View>
-    // </KeyboardAvoidingView>
+
+      <GiftedChat
+        messages={messages}
+        onSend={handleSendMessage}
+        user={{
+          _id: usersInChat.currentUser?.$id as string,
+          name: usersInChat.currentUser?.username,
+          avatar: usersInChat.currentUser?.avatar,
+        }}
+        renderUsernameOnMessage
+        alwaysShowSend
+      />
+    </View>
   );
 };
 
