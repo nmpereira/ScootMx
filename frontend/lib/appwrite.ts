@@ -253,7 +253,11 @@ export async function getMessages(otherUser: string) {
 
     messages.documents.reverse();
 
-    return messages;
+    return {
+      documents: messages.documents,
+      total: messages.total,
+      currentUser,
+    };
   } catch (error) {
     throw new Error(error as string);
   }

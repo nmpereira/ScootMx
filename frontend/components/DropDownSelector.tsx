@@ -13,31 +13,13 @@ import {
 import { ChevronDownIcon } from "@/components/ui/icon";
 import React from "react";
 import { View, Text } from "react-native";
-
-export enum Currency {
-  MXN = "MXN",
-  USD = "USD",
-}
-
-export enum City {
-  TULUM = "Tulum",
-  CANCUN = "Cancun",
-  PLAYA_DEL_CARMEN = "Playa del Carmen",
-}
-
-export enum VehicleType {
-  SCOOTER = "Scooter",
-  ATV = "ATV",
-  UTV = "UTV",
-}
-
-export enum DropDownSelectorType {
-  CURRENCY = "CURRENCY",
-  CITY = "CITY",
-  VEHICLE_TYPE = "VEHICLE_TYPE",
-}
-
-export type SelectOptionTypes = Currency | City | VehicleType;
+import {
+  SelectOptionTypes,
+  DropDownSelectorType,
+  Currency,
+  City,
+  VehicleType,
+} from "@/types/dbTypes";
 
 interface SelectOptionProps {
   // can be currency or city
@@ -57,22 +39,23 @@ const DropDownSelector = ({
     setSelectedOption(option);
   };
   return (
-    <View >
+    <View>
       <Text className="text-base text-gray-100 font-bold mb-2">{title}</Text>
 
       <Select
         onValueChange={(value) => onSelectOption(value as SelectOptionTypes)}
         selectedValue={selectedOption}
         className="border-tertiary-400 focus:border-none"
-        
       >
-        <SelectTrigger variant="outline" size="xl" 
-        className="border-tertiary-400 focus:border-tertiary-400"
+        <SelectTrigger
+          variant="outline"
+          size="xl"
+          className="border-tertiary-400 focus:border-tertiary-400"
         >
           <SelectInput placeholder="Select option" className="text-white" />
           <SelectIcon className="mr-3" as={ChevronDownIcon} />
         </SelectTrigger>
-        <SelectPortal >
+        <SelectPortal>
           <SelectBackdrop />
           <SelectContent className="border-tertiary-400">
             <SelectDragIndicatorWrapper>
