@@ -1,12 +1,18 @@
 import { useGlobalContext } from "@/context/GlobalProvider";
-import { getMessages } from "@/lib/appwrite";
+import { getMessages, sendMessage } from "@/lib/appwrite";
 import { MessageDocumentDB, UserDocumentDB } from "@/types/dbTypes";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState, useCallback, useEffect } from "react";
 import { Models } from "react-native-appwrite";
 import { GiftedChat, QuickReplies, User } from "react-native-gifted-chat";
+import {
+  Platform,
+  KeyboardAvoidingView,
+  View,
+  ActivityIndicator,
+} from "react-native";
 
-export interface IMessage {
+export interface IGiftedMessage {
   _id: string | number;
   text: string;
   createdAt: Date | number;
@@ -21,88 +27,129 @@ export interface IMessage {
   quickReplies?: QuickReplies;
 }
 
+// Helper function to parse Appwrite messages into Gifted Chat format
 const parseMessages = ({
   messages,
-  otherUser,
+  currentUserId,
 }: {
   messages: MessageDocumentDB[];
-  otherUser: string;
-}): {
-  messages: IMessage[];
-  currentUser: UserDocumentDB;
-  nonCurrentUser: UserDocumentDB;
-} => {
-  let currentUser: UserDocumentDB | null = null;
-  let nonCurrentUser: UserDocumentDB | null = null;
-  return {
-    messages: messages.map((message) => {
-      const isCurrentUser = message.userFrom.$id === otherUser;
-
-      if(!currentUser || !nonCurrentUser) {
-        currentUser = isCurrentUser ? message.userFrom : message.userTo;
-        nonCurrentUser = isCurrentUser ? message.userTo : message.userFrom;
+  currentUserId: string;
+}): IGiftedMessage[] => {
+  return messages
+    .map((message): IGiftedMessage | null => {
+      if (!message.userFrom || !message.userTo) {
+        console.error("Invalid message format:", message);
+        return null;
       }
-      const user: User = {
-        _id: isCurrentUser ? message.userFrom.$id : message.userTo.$id,
-        name: isCurrentUser
-          ? message.userFrom.username
-          : message.userTo.username,
-        avatar: isCurrentUser ? message.userFrom.avatar : message.userTo.avatar,
-      };
+      try {
+        const isCurrentUser = message.userFrom.$id === currentUserId;
 
-      return {
-        _id: message.$id,
-        text: message.messagebody,
-        createdAt: new Date(message.timeSent),
-        user,
-      };
-    }),
-    currentUser: currentUser!,
-    nonCurrentUser: nonCurrentUser!,
-  };
+        const user: User = {
+          _id: isCurrentUser ? message.userFrom.$id : message.userTo.$id,
+          name: isCurrentUser
+            ? message.userFrom.username
+            : message.userTo.username,
+          avatar: isCurrentUser
+            ? message.userFrom.avatar
+            : message.userTo.avatar,
+        };
+
+        return {
+          _id: message.$id,
+          text: message.messagebody,
+          createdAt: new Date(message.timeSent),
+          user,
+        } as IGiftedMessage;
+      } catch (error) {
+        return null;
+      }
+    })
+    .filter((message): message is IGiftedMessage => message !== null);
+  // .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 };
 
 const ChatWithUser = () => {
-  const { chatId: otherUser }: { chatId: string } = useLocalSearchParams();
+  const { chatId: otherUser } = useLocalSearchParams<{ chatId: string }>();
   const { user } = useGlobalContext();
-  const [messages, setMessages] = useState<IMessage[]>([]);
-
+  const [messages, setMessages] = useState<IGiftedMessage[]>([]);
+  const [isLoadingEarlier, setIsLoadingEarlier] = useState(false);
 
   const fetchMessages = useCallback(async () => {
-    const { documents, total } = await getMessages(otherUser);
+    if (!user) return; // Don't fetch if user is null
+    try {
+      const { documents, total } = await getMessages(otherUser);
 
-    const {
-      messages: parsedMessages,
-      currentUser,
-      nonCurrentUser,
-    } = parseMessages({
-      messages: documents as Models.Document[] as MessageDocumentDB[],
+      const parsedMessages = parseMessages({
+        messages: documents as Models.Document[] as MessageDocumentDB[],
+        currentUserId: user!.$id,
+      });
 
-      otherUser,
-    });
-    setMessages(parsedMessages);
-  }, []);
+      setMessages(parsedMessages);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      // Handle error (e.g., show an error message)
+    }
+  }, [otherUser, user]);
 
   useEffect(() => {
     fetchMessages();
-  }, []);
+  }, [fetchMessages, user]); // user is now a dependency.
 
-  const onSend = useCallback((messages: IMessage[] = []) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, messages)
+  const onSend = useCallback(
+    async (newMessages: IGiftedMessage[] = []) => {
+      if (!user) return; //don't send if the user is null
+      try {
+        const newMessage = newMessages[0];
+        setMessages((previousMessages) =>
+          GiftedChat.append(previousMessages, [newMessage])
+        );
+
+        await sendMessage({
+          message: newMessage.text,
+          userTo: otherUser,
+        });
+      } catch (error) {
+        console.error("Error sending message:", error);
+        // Optionally, revert the UI to the previous state if sending fails
+        setMessages((previousMessages) =>
+          previousMessages.filter((m) => m._id !== newMessages[0]._id)
+        );
+        // Handle error (e.g., show an error message)
+      }
+    },
+    [otherUser, user]
+  );
+
+  // Show a loading indicator while user is null
+  if (!user) {
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      </KeyboardAvoidingView>
     );
-  }, []);
+  }
 
   return (
-    <GiftedChat
-      messages={messages}
-      onSend={(messages) => onSend(messages)}
-      user={{
-        _id: user!.$id,
-        name: user!.username,
-        avatar: user!.avatar,
-      }}
-    />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <GiftedChat
+        messages={messages}
+        onSend={onSend}
+        user={{
+          _id: user!.$id,
+          name: user!.username,
+          avatar: user!.avatar,
+        }}
+        isLoadingEarlier={isLoadingEarlier}
+      />
+    </KeyboardAvoidingView>
   );
 };
 
