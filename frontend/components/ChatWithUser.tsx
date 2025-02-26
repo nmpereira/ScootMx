@@ -1,27 +1,16 @@
 import AvatarComponent from "@/components/AvatarComponent";
-import { useGlobalContext } from "@/context/GlobalProvider";
 import {
   appwriteConfig,
   client,
   getMessages,
-  getUser,
   sendMessage,
 } from "@/lib/appwrite";
-import { router } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Models } from "react-native-appwrite";
-import MessageBubble from "./MessageBubble";
-import { GiftedChat, QuickReplies, User } from "react-native-gifted-chat";
 import { MessageDocumentDB, UserDocumentDB } from "@/types/dbTypes";
+import { router } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { Models } from "react-native-appwrite";
+import { GiftedChat, QuickReplies, User } from "react-native-gifted-chat";
 
 export interface IGiftedMessage {
   _id: string | number;
@@ -38,6 +27,25 @@ export interface IGiftedMessage {
   quickReplies?: QuickReplies;
 }
 
+const parseMessage = (
+  message: MessageDocumentDB,
+  currentUser: UserDocumentDB,
+  nonCurrentUser: UserDocumentDB
+): IGiftedMessage => {
+  const isCurrentUser = message.userFrom.$id === currentUser?.$id;
+
+  return {
+    _id: message.$id,
+    text: message.messagebody,
+    createdAt: new Date(message.$createdAt),
+    user: {
+      _id: isCurrentUser ? currentUser.$id : nonCurrentUser.$id,
+      name: isCurrentUser ? currentUser.username : nonCurrentUser.username,
+      avatar: isCurrentUser ? currentUser.avatar : nonCurrentUser.avatar,
+    },
+  };
+};
+
 const parseMessages = ({
   messages,
   currentUser,
@@ -47,35 +55,20 @@ const parseMessages = ({
   currentUser: UserDocumentDB;
   nonCurrentUser: UserDocumentDB;
 }): IGiftedMessage[] => {
-  return messages.map((message) => {
-    const isCurrentUser = message.userFrom.$id === currentUser?.$id;
-
-    return {
-      _id: message.$id,
-      text: message.messagebody,
-      createdAt: new Date(message.$createdAt),
-      user: {
-        _id: isCurrentUser ? currentUser.$id : nonCurrentUser.$id,
-        name: isCurrentUser ? currentUser.username : nonCurrentUser.username,
-        avatar: isCurrentUser ? currentUser.avatar : nonCurrentUser.avatar,
-      },
-    };
-  });
+  return messages.map((message) =>
+    parseMessage(message, currentUser, nonCurrentUser)
+  );
 };
 
 const MessagePage = ({ otherUser }: { otherUser: string }) => {
-  const { user } = useGlobalContext();
-
   const [usersInChat, setUsersInChat] = useState<{
-    currentUser: Models.Document | null;
-    nonCurrentUser: Models.Document | null;
+    currentUser: UserDocumentDB | null;
+    nonCurrentUser: UserDocumentDB | null;
   }>({
     currentUser: null,
     nonCurrentUser: null,
   });
   const [messages, setMessages] = useState<IGiftedMessage[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const flatListRef = useRef<FlatList>(null);
 
   const fetchMessages = useCallback(async () => {
     const { documents, currentUser, nonCurrentUser } = await getMessages(
@@ -104,12 +97,28 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
         channels,
       }: {
         events: string[];
-        payload: Models.Document;
+        payload: MessageDocumentDB;
         channels: string[];
       }) => {
         if (events.includes("databases.*.collections.*.documents.*.create")) {
           console.log("A MESSAGE WAS CREATED", payload);
           //   setMessages((prevState) => [...prevState, payload]);
+          const newMessage = parseMessage(
+            payload,
+            usersInChat.currentUser!,
+            usersInChat.nonCurrentUser!
+          );
+          setMessages((previousMessages) =>
+            GiftedChat.append(previousMessages, [newMessage])
+          );
+          // setMessages((prevState) => [
+          //   ...prevState,
+          //   parseMessage(
+          //     payload,
+          //     usersInChat.currentUser!,
+          //     usersInChat.nonCurrentUser!
+          //   ),
+          // ]);
         }
       }
     );
@@ -120,8 +129,8 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
     };
   }, []);
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim()) return;
+  const handleSendMessage = async (messages: IGiftedMessage[]) => {
+    const newMessage = messages[0].text;
 
     const userTo = otherUser;
     if (!userTo) return;
@@ -132,7 +141,9 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
     };
 
     await sendMessage(messageData);
-    setNewMessage("");
+    setMessages((previousMessages) =>
+      GiftedChat.append(previousMessages, messages)
+    );
   };
 
   return (
@@ -142,8 +153,8 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
           <Text className="text-blue-500 font-bold">Back</Text>
         </TouchableOpacity>
         <AvatarComponent
-          name={usersInChat.nonCurrentUser?.username}
-          imageUrl={usersInChat.nonCurrentUser?.avatar}
+          name={usersInChat.nonCurrentUser?.username || "Chat"}
+          imageUrl={usersInChat.nonCurrentUser?.avatar || ""}
         />
         <Text className="text-2xl font-semibold text-tertiary-500">
           {usersInChat.nonCurrentUser?.username || "Chat"}
@@ -152,7 +163,7 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
 
       <GiftedChat
         messages={messages}
-        onSend={handleSendMessage}
+        onSend={(messages) => handleSendMessage(messages)}
         user={{
           _id: usersInChat.currentUser?.$id as string,
           name: usersInChat.currentUser?.username,
