@@ -5,15 +5,11 @@ import {
   View,
   Text,
   ScrollView,
-  Dimensions,
-  Alert,
   Image,
   TouchableOpacity,
   TextInput,
 } from "react-native";
-
 import { images } from "../../constants";
-
 import { getCurrentUser, signIn } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import CustomButton from "@/components/CustomButton";
@@ -28,7 +24,11 @@ const SignIn = () => {
     email: "",
     password: "",
   });
+
+  // Refs for focusing fields
+  const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
+
   const submit = async () => {
     if (form.email === "" || form.password === "") {
       AlertMessage({ message: "Please fill in all fields" });
@@ -36,7 +36,6 @@ const SignIn = () => {
     }
 
     setSubmitting(true);
-
     try {
       await signIn({
         email: form.email,
@@ -47,10 +46,8 @@ const SignIn = () => {
       setUser(result);
       setIsLogged(true);
 
-      AlertMessage({ message: "Logged in successfully" });
       router.replace("/");
     } catch (error) {
-      // Alert.alert("Error", (error as Error).message);
       AlertMessage({ error: error as Error });
     } finally {
       setSubmitting(false);
@@ -71,6 +68,7 @@ const SignIn = () => {
             <Text className="text-2xl font-semibold text-white mt-10 font-psemibold">
               Log in to ScootMx
             </Text>
+
             <View className="w-full flex flex-col items-center">
               <FormField
                 title="Email"
@@ -79,7 +77,9 @@ const SignIn = () => {
                 otherStyles="mt-7 w-96"
                 keyboardType="email-address"
                 placeholder=""
-                onSubmitEditing={() => passwordRef?.current?.focus()} // Move to password field on Enter
+                ref={emailRef}
+                returnKeyType="next"
+                onSubmitEditing={() => passwordRef.current?.focus()} // Move to password
               />
 
               <FormField
@@ -90,10 +90,12 @@ const SignIn = () => {
                 }
                 otherStyles="mt-7 w-96"
                 placeholder=""
-                onSubmitEditing={submit} // Submit form when Enter is pressed
                 ref={passwordRef}
+                returnKeyType="done"
+                onSubmitEditing={submit} // Submit form on Enter
               />
             </View>
+
             <CustomButton
               title="Sign In"
               handlePress={submit}

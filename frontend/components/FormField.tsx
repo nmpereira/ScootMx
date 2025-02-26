@@ -13,6 +13,7 @@ interface FormFieldProps {
   suffix?: string;
   validationText?: string;
   onSubmitEditing?: () => void;
+  returnKeyType?: "next" | "done";
 }
 
 // Use forwardRef to pass down the ref to the TextInput
@@ -27,6 +28,7 @@ const FormField = forwardRef<TextInput, FormFieldProps>(
       suffix,
       validationText,
       onSubmitEditing,
+      returnKeyType = "next",
       ...props
     },
     ref // Receive ref
@@ -45,9 +47,9 @@ const FormField = forwardRef<TextInput, FormFieldProps>(
             placeholder={placeholder}
             placeholderTextColor="#7B7B8B"
             onChangeText={handleChangeText}
+            onSubmitEditing={onSubmitEditing} // Move to next field or submit form
+            returnKeyType={returnKeyType} // Next for all except last field
             secureTextEntry={title === "Password" && !showPassword}
-            onSubmitEditing={onSubmitEditing} // Trigger event when pressing Enter
-            returnKeyType={title === "Password" ? "done" : "next"} // Change Enter key behavior
             {...props}
           />
 
