@@ -15,7 +15,7 @@ const ChatWithUser = () => {
 
   if (!loading && !isLogged) return <Redirect href="/(tabs)" />;
   return (
-    <SafeAreaView className="bg-background-950 h-full">
+    <SafeAreaView className="bg-background-950 h-full pt-4">
       <View className="flex items-center justify-center h-full">
         <MessagePage otherUser={chatId as string} />
       </View>

@@ -12,7 +12,7 @@ import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const home = () => {
-  const { user, isLogged } = useGlobalContext();
+  
   const [vehicleListings, setVehicleListings] = useState<
     ScooterCardProps[] | null
   >(null);
@@ -32,42 +32,18 @@ const home = () => {
     fetchListings();
   }, []);
 
-  const navigateToSettings = () => {
-    router.navigate("/settings");
-  };
+
 
   return (
     <SafeAreaView className="bg-background-950 pt-4 h-full">
       <View className="h-full bg-background-950">
         <View className="w-full flex justify-center items-center h-full px-4 rounded-lg max-w-[414px] mx-auto">
-          <View className="w-80 flex flex-row  items-center justify-between">
+          {/* <View className="w-80 flex flex-row  items-center justify-between">
             <Text className="text-3xl font-bold text-center text-tertiary-500 my-6">
               Rentals
             </Text>
-            <View>
-              {isLogged ? (
-                <View className="flex flex-col items-center justify-center">
-                  <TouchableOpacity onPress={navigateToSettings}>
-                    <AvatarComponent
-                      name={user?.username}
-                      imageUrl={user?.avatar}
-                    />
-                  </TouchableOpacity>
-                  <Text className="text-white text-sm">
-                    Welcome, {user?.username}
-                  </Text>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  onPress={() => router.navigate("/(auth)/signIn")}
-                >
-                  <Text className="text-white text-sm bg-primary-500 p-2 rounded-md">
-                    Login
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
+
+          </View> */}
           <FlatList
             data={vehicleListings}
             keyExtractor={(item, index) => index.toString()}

@@ -82,11 +82,11 @@ const ChatPage = () => {
 
   return (
     <View className="flex-1 bg-background-950 w-full max-w-[414px] border border-primary-500 h-full">
-         <View className="p-4 border border-tertiary-500 rounded-lg">
+         {/* <View className="p-4 border border-tertiary-500 rounded-lg">
             <Text className="text-2xl font-semibold text-tertiary-500">
               Chats
             </Text>
-          </View>
+          </View> */}
       <FlatList
         data={chatList}
         keyExtractor={(item) => item.user.$id}

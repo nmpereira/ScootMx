@@ -73,7 +73,7 @@ const ListingPage = () => {
         {/* Image */}
         <View className="w-80 h-80 bg-primary-500 rounded-lg">
           <Image
-            source={{ uri: listing?.images[0] }}
+            source={{ uri: `${listing?.images[0]}` }}
             className="w-full h-full rounded-xl"
           />
         </View>

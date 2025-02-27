@@ -79,9 +79,9 @@ const CreateListing = () => {
     <SafeAreaView className="bg-background-900 h-full pt-4">
       <View className="flex items-center h-full p-4">
         {/* Input Fields */}
-        <Text className="text-2xl font-semibold text-tertiary-500 my-7 text-center">
+        {/* <Text className="text-2xl font-semibold text-tertiary-500 my-7 text-center">
           Create Listing
-        </Text>
+        </Text> */}
         <ScrollView className="h-full border border-tertiary-500 rounded-lg p-4 max-w-[414px] w-full">
           <View className="mt-7 w-full">
             {/* Header */}

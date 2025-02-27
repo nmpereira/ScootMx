@@ -1,15 +1,15 @@
-import React from "react";
+import { FormFieldProps } from "@/app/(tabs)/create";
 import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
+import { HStack } from "@/components/ui/hstack";
 import { Image } from "@/components/ui/image";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { TouchableOpacity, View } from "react-native";
-import { HStack } from "@/components/ui/hstack";
-import { router } from "expo-router";
-import { FormFieldProps } from "@/app/(tabs)/create";
-import { startChat } from "@/lib/appwrite";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import { startChat } from "@/lib/appwrite";
+import { router } from "expo-router";
+import React from "react";
+import { TouchableOpacity, View } from "react-native";
 
 interface SellerProps {
   name: string;
@@ -78,7 +78,7 @@ const ScooterCard = ({
       <View className="flex justify-center items-center">
         <Image
           source={{
-            uri: images[0],
+            uri: `${images[0]}`,
           }}
           className="mb-6 h-[240px] w-[240px] rounded-md object-contain aspect-[4/3]"
           alt="image"
@@ -107,7 +107,8 @@ const ScooterCard = ({
         <Text size="sm">
           Price:{" "}
           <Text size="sm" className="font-bold">
-            {price}{" $"}
+            {price}
+            {" $"}
             {currency}
             {" /"} day
           </Text>
