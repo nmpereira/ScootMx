@@ -13,6 +13,7 @@ import { ScooterCardProps } from "@/components/ScooterCard";
 import { parseVehicleData } from "@/utils/utls";
 import { Avatar } from "@/components/ui/avatar";
 import AvatarComponent from "@/components/AvatarComponent";
+import { HeaderWithoutUser } from "@/components/Header";
 
 const DisplayDetail = ({ title, value }: { title: string; value: string }) => {
   return (
@@ -51,24 +52,29 @@ const ListingPage = () => {
 
   return (
     <SafeAreaView className="bg-background-950 h-full">
+      {/* Header */}
+      <HeaderWithoutUser 
+        title={listing?.title || ""}
+        backButtonFn={navigateToRenals}
+      />
       <ScrollView className="h-full">
 
       <View className="flex items-center h-full p-4 border border-tertiary-500 rounded-lg max-w-[414px] mx-auto ">
         {/* Back */}
-        <View className="w-80 flex flex-row  items-center justify-between">
+        {/* <View className="w-80 flex flex-row  items-center justify-between">
           <TouchableOpacity onPress={navigateToRenals}>
             <Text className="text-blue-500 text-lg font-bold">Back</Text>
           </TouchableOpacity>
 
-          {/* Title */}
+
 
           <Text className="text-3xl font-bold text-tertiary-500 my-6">
             {listing?.title}
           </Text>
 
-          {/* Empty container */}
+    
           <View></View>
-        </View>
+        </View> */}
 
         {/* Image */}
         <View className="w-80 h-80 bg-primary-500 rounded-lg">

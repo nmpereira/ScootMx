@@ -10,6 +10,7 @@ import "react-native-reanimated";
 import "../global.css";
 import GlobalProvider from "@/context/GlobalProvider";
 import React from "react";
+import Header from "@/components/Header";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -52,7 +53,7 @@ export default function RootLayout() {
             <Stack.Screen
               name="chats/[chatId]"
               options={{ headerShown: false }}
-              
+        
             />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="index" options={{ headerShown: false }} />

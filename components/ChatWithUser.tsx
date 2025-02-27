@@ -8,9 +8,10 @@ import {
 import { MessageDocumentDB, UserDocumentDB } from "@/types/dbTypes";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Platform, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import { Models } from "react-native-appwrite";
 import { GiftedChat, QuickReplies, User } from "react-native-gifted-chat";
+import { HeaderWithoutUser } from "@/components/Header";
 
 export interface IGiftedMessage {
   _id: string | number;
@@ -143,65 +144,76 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
   };
 
   return (
-    <View className="bg-background-light flex-1 w-full max-w-[414px] rounded-lg">
-      <View className="flex flex-row items-center gap-4 p-4 border border-tertiary-500 rounded-lg">
-        <TouchableOpacity onPress={() => router.navigate("/messages")}>
-          <Text className="text-blue-500 font-bold">Back</Text>
-        </TouchableOpacity>
-        <AvatarComponent
-          name={usersInChat.nonCurrentUser?.username || "Chat"}
-          imageUrl={usersInChat.nonCurrentUser?.avatar || ""}
+    <SafeAreaView className="bg-background-950 h-full">
+      <View className="bg-background-light flex-1 w-full max-w-[414px] rounded-lg">
+        <HeaderWithoutUser
+          title={usersInChat.nonCurrentUser?.username || "Chat"}
+          backButtonFn={() => router.navigate("/(tabs)/messages")}
+          userBubble={<AvatarComponent name={
+            usersInChat.nonCurrentUser?.username || "Chat"
+          } imageUrl={
+            usersInChat.nonCurrentUser?.avatar || ""
+          } />}
         />
-        <Text className="text-2xl font-semibold text-tertiary-500">
-          {usersInChat.nonCurrentUser?.username || "Chat"}
-        </Text>
-      </View>
+        {/* <View className="flex flex-row items-center gap-4 p-4 border border-tertiary-500 rounded-lg">
+          <TouchableOpacity onPress={() => router.navigate("/messages")}>
+            <Text className="text-blue-500 font-bold">Back</Text>
+          </TouchableOpacity>
+          <AvatarComponent
+            name={usersInChat.nonCurrentUser?.username || "Chat"}
+            imageUrl={usersInChat.nonCurrentUser?.avatar || ""}
+          />
+          <Text className="text-2xl font-semibold text-tertiary-500">
+            {usersInChat.nonCurrentUser?.username || "Chat"}
+          </Text>
+        </View> */}
 
-      <GiftedChat
-        messages={messages}
-        onSend={(messages) => handleSendMessage(messages)}
-        text={text}
-        user={{
-          _id: usersInChat.currentUser?.$id as string,
-          name: usersInChat.currentUser?.username,
-          avatar: usersInChat.currentUser?.avatar,
-        }}
-        renderUsernameOnMessage
-        onInputTextChanged={setText}
-        alwaysShowSend
-        textInputProps={{
-          multiline: true,
+        <GiftedChat
+          messages={messages}
+          onSend={(messages) => handleSendMessage(messages)}
+          text={text}
+          user={{
+            _id: usersInChat.currentUser?.$id as string,
+            name: usersInChat.currentUser?.username,
+            avatar: usersInChat.currentUser?.avatar,
+          }}
+          renderUsernameOnMessage
+          onInputTextChanged={setText}
+          alwaysShowSend
+          textInputProps={{
+            multiline: true,
 
-          onKeyPress: (
-            event:
-              | React.KeyboardEvent<HTMLInputElement>
-              | React.KeyboardEvent<HTMLTextAreaElement>
-          ) => {
-            if (
-              Platform.OS === "web" &&
-              event.nativeEvent.key === "Enter" &&
-              !event.nativeEvent.shiftKey
-            ) {
-              if (text.trim() !== "") {
-                handleSendMessage([
-                  {
-                    text,
-                    user: { _id: usersInChat.currentUser?.$id as string },
-                    _id: Math.random().toString(),
-                    createdAt: new Date(),
-                  },
-                ]);
+            onKeyPress: (
+              event:
+                | React.KeyboardEvent<HTMLInputElement>
+                | React.KeyboardEvent<HTMLTextAreaElement>
+            ) => {
+              if (
+                Platform.OS === "web" &&
+                event.nativeEvent.key === "Enter" &&
+                !event.nativeEvent.shiftKey
+              ) {
+                if (text.trim() !== "") {
+                  handleSendMessage([
+                    {
+                      text,
+                      user: { _id: usersInChat.currentUser?.$id as string },
+                      _id: Math.random().toString(),
+                      createdAt: new Date(),
+                    },
+                  ]);
 
-                setTimeout(() => {
-                  setText("");
-                }, 200);
+                  setTimeout(() => {
+                    setText("");
+                  }, 200);
+                }
+                // event.preventDefault();
               }
-              // event.preventDefault();
-            }
-          },
-        }}
-      />
-    </View>
+            },
+          }}
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 
