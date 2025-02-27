@@ -172,20 +172,31 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
         textInputProps={{
           multiline: true,
 
-          onKeyPress: (event: { nativeEvent: { key: string } }) => {
-            if (event.nativeEvent.key === "Enter" && text.trim() !== "") {
-              handleSendMessage([
-                {
-                  text,
-                  user: { _id: usersInChat.currentUser?.$id as string },
-                  _id: Math.random().toString(),
-                  createdAt: new Date(),
-                },
-              ]);
+          onKeyPress: (
+            event:
+              | React.KeyboardEvent<HTMLInputElement>
+              | React.KeyboardEvent<HTMLTextAreaElement>
+          ) => {
+            if (
+              Platform.OS === "web" &&
+              event.nativeEvent.key === "Enter" &&
+              !event.nativeEvent.shiftKey
+            ) {
+              if (text.trim() !== "") {
+                handleSendMessage([
+                  {
+                    text,
+                    user: { _id: usersInChat.currentUser?.$id as string },
+                    _id: Math.random().toString(),
+                    createdAt: new Date(),
+                  },
+                ]);
 
-              setTimeout(() => {
-                setText("");
-              }, 200);
+                setTimeout(() => {
+                  setText("");
+                }, 200);
+              }
+              // event.preventDefault();
             }
           },
         }}
