@@ -4,7 +4,6 @@ import { Models } from "react-native-appwrite";
 export async function parseVehicleData(data: Models.Document) {
   const headerImage = await getImages([data?.images[0]]);
 
-  console.log(`[parseVehicleData]`, data);
   return {
     title: data?.title,
     listingId: data?.$id,
@@ -26,6 +25,7 @@ export async function parseVehicleData(data: Models.Document) {
 }
 
 export async function getImages(images: string[]) {
+  
   return await Promise.all(
     images.map(async (image) => {
       const url = await getFileView(image);

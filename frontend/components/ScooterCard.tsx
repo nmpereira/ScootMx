@@ -107,9 +107,9 @@ const ScooterCard = ({
         <Text size="sm">
           Price:{" "}
           <Text size="sm" className="font-bold">
-            {price}
+            {price}{" $"}
             {currency}
-            {"/"} day
+            {" /"} day
           </Text>
         </Text>
 

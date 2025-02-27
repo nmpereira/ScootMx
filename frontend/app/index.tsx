@@ -20,15 +20,15 @@ const Welcome = () => {
           height: "100%",
         }}
       >
-        <View className="w-full flex justify-center items-center h-full px-4">
+        <View className="w-full flex justify-center items-center h-full">
           <Image
             source={images.scooterIconText}
-            className="w-[130px] h-[84px] max-w-[150px] max-h-[95px]"
             resizeMode="contain"
+            className="max-w-[75px] max-h-[75px] mt-8"
           />
           <Image
             source={images.SplashScooters}
-            className="max-w-[380px] w-full h-[298px]"
+            className="max-w-[380px] max-h-[298px]"
             resizeMode="contain"
           />
 
@@ -54,7 +54,8 @@ const Welcome = () => {
           <Text className="text-sm font-pregular text-gray-100 mt-7 text-center">
             Rent a scooter, ATV, or e-bike from a local owner in your city.
             {"\n"}
-            ScootMx is the best way to rent scooters, ATVs, and e-bikes in{"\n"}
+            ScootMx is the best way to rent scooters, ATVs, and e-bikes in
+            {"\n"}
             your city. We offer a wide range of vehicles to choose from.
           </Text>
 

@@ -3,16 +3,24 @@ import messages from "@/app/(tabs)/messages";
 import { ScooterCardProps } from "@/components/ScooterCard";
 import { router } from "expo-router";
 import {
-  Client,
-  Account,
-  Avatars,
-  Storage,
-  Databases,
+  Client as RNClient,
+  Account as RNAccount,
+  Avatars as RNAvatars,
+  Storage as RNStorage,
+  Databases as RNDatabases,
   ID,
   Query,
-  QueryTypesList,
-  Models,
 } from "react-native-appwrite";
+import {
+  Client as WebClient,
+  Account as WebAccount,
+  Avatars as WebAvatars,
+  Storage as WebStorage,
+  Databases as WebDatabases,
+  Models,
+} from "appwrite";
+import { Platform } from "react-native";
+import { MessageDocumentDB, UserDocumentDB } from "@/types/dbTypes";
 
 export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -25,15 +33,29 @@ export const appwriteConfig = {
   messagesCollectionId: "67b17849001499db151d",
 };
 
-export const client = new Client()
-  .setEndpoint(appwriteConfig.endpoint)
-  .setProject(appwriteConfig.projectId)
-  .setPlatform(appwriteConfig.platform);
+export const client = Platform.OS === "web" ? new WebClient() : new RNClient();
 
-const account = new Account(client);
-export const storage = new Storage(client);
-const avatars = new Avatars(client);
-const databases = new Databases(client);
+client
+  .setEndpoint(appwriteConfig.endpoint)
+  .setProject(appwriteConfig.projectId);
+// .setPlatform(appwriteConfig.platform);
+
+export const account =
+  Platform.OS === "web"
+    ? new WebAccount(client as WebClient)
+    : new RNAccount(client as RNClient);
+export const storage =
+  Platform.OS === "web"
+    ? new WebStorage(client as WebClient)
+    : new RNStorage(client as RNClient);
+export const avatars =
+  Platform.OS === "web"
+    ? new WebAvatars(client as WebClient)
+    : new RNAvatars(client as RNClient);
+export const databases =
+  Platform.OS === "web"
+    ? new WebDatabases(client as WebClient)
+    : new RNDatabases(client as RNClient);
 
 // Register user
 export async function createUser({
@@ -205,8 +227,22 @@ export async function getVehicleListingById(id: string) {
   }
 }
 
+const getNonCurrentUserFromMessages = (
+  message: MessageDocumentDB,
+  currentUser: UserDocumentDB
+) => {
+  return message.userFrom.$id === currentUser.$id
+    ? message.userTo
+    : message.userFrom;
+};
+
 // messages page, get just the messages that are related to the current user
-export async function getMessages(otherUser: string) {
+export async function getMessages(otherUser: string): Promise<{
+  documents: MessageDocumentDB[];
+  total: number;
+  currentUser: UserDocumentDB;
+  nonCurrentUser: UserDocumentDB;
+}> {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) throw Error;
@@ -225,12 +261,24 @@ export async function getMessages(otherUser: string) {
             Query.equal("userTo", currentUser.$id),
           ]),
         ]),
+        Query.orderDesc("$createdAt"),
+        Query.limit(25),
       ]
     );
 
+    // messages.documents.reverse();
 
+    const nonCurrentUser = getNonCurrentUserFromMessages(
+      messages.documents[0] as MessageDocumentDB,
+      currentUser as UserDocumentDB
+    );
 
-    return messages;
+    return {
+      documents: messages.documents as MessageDocumentDB[],
+      total: messages.total,
+      currentUser: currentUser as UserDocumentDB,
+      nonCurrentUser: nonCurrentUser as UserDocumentDB,
+    };
   } catch (error) {
     throw new Error(error as string);
   }
@@ -266,7 +314,6 @@ export async function sendMessage({
     throw new Error(error as string);
   }
 }
-
 
 export async function getChatPreviews() {
   try {
@@ -314,9 +361,20 @@ export async function getChatPreviews() {
             Query.limit(1),
           ]
         );
+
         return { user: chatUser, latestMessage: messagesResponse.documents[0] };
       })
     );
+
+    chatPreviews.sort((a, b) => {
+      if (!a.latestMessage) return -1;
+      if (!b.latestMessage) return 1;
+
+      return (
+        new Date(b.latestMessage.timeSent).getTime() -
+        new Date(a.latestMessage.timeSent).getTime()
+      );
+    });
 
     return chatPreviews;
   } catch (error) {
@@ -324,11 +382,14 @@ export async function getChatPreviews() {
   }
 }
 
-
 // startChat
 export async function startChat({
-  userTo, listingId
-}:{userTo: string, listingId: string}) {
+  userTo,
+  listingId,
+}: {
+  userTo: string;
+  listingId: string;
+}) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) throw Error;
@@ -377,7 +438,7 @@ export async function startChat({
         hasChatsWith: userToChatList,
       }
     );
-    
+
     router.navigate(`/chats/${userTo}`);
   } catch (error) {
     throw new Error(error as string);

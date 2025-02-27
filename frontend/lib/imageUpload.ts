@@ -88,12 +88,12 @@ const handleImagePicked = async (
 
 export const getFilePreview = async (fileId: string) => {
   const fileUrl = storage.getFilePreview(appwriteConfig.storageId, fileId);
-  return fileUrl.href;
+  return fileUrl as string;
 };
 
 export const getFileView = async (fileId: string) => {
   const fileUrl = storage.getFileView(appwriteConfig.storageId, fileId);
-  return fileUrl.href;
+  return fileUrl as string;
 };
 
 export const deleteFile = async (fileId: string) => {
