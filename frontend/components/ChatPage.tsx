@@ -93,7 +93,7 @@ const ChatPage = () => {
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => goToUserChat(item.user)}
-            className="flex flex-row items-center p-4 border border-tertiary-500 rounded-lg my-2"
+            className="flex flex-row items-center p-4 border border-tertiary-500 rounded-lg"
           >
             <AvatarComponent
               name={item.user.username}
