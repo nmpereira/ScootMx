@@ -7,8 +7,8 @@ import {
 } from "@/lib/appwrite";
 import { MessageDocumentDB, UserDocumentDB } from "@/types/dbTypes";
 import { router } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Platform, Text, TouchableOpacity, View } from "react-native";
 import { Models } from "react-native-appwrite";
 import { GiftedChat, QuickReplies, User } from "react-native-gifted-chat";
 
@@ -70,7 +70,9 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
     currentUser: null,
     nonCurrentUser: null,
   });
+  const usersInChatRef = useRef(usersInChat);
   const [messages, setMessages] = useState<IGiftedMessage[]>([]);
+  const [text, setText] = useState<string>("");
 
   const fetchMessages = useCallback(async () => {
     const { documents, currentUser, nonCurrentUser } = await getMessages(
@@ -82,12 +84,13 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
       nonCurrentUser,
     });
     setUsersInChat({ currentUser, nonCurrentUser });
+    usersInChatRef.current = { currentUser, nonCurrentUser };
     setMessages(parsedMessages);
-  }, []);
+  }, [otherUser]);
 
   useEffect(() => {
     fetchMessages();
-  }, []);
+  }, [fetchMessages]);
 
   useEffect(() => {
     console.log("subscribing to channel, messages");
@@ -103,12 +106,14 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
         channels: string[];
       }) => {
         if (events.includes("databases.*.collections.*.documents.*.create")) {
-          console.log("A MESSAGE WAS CREATED", payload, {usersInChat});
+          console.log("A MESSAGE WAS CREATED", payload, {
+            usersInChat: usersInChatRef.current,
+          });
 
           const newMessage = parseMessage(
             payload,
-            usersInChat.currentUser!,
-            usersInChat.nonCurrentUser!
+            usersInChatRef.current.currentUser!,
+            usersInChatRef.current.nonCurrentUser!
           );
           setMessages((previousMessages) =>
             GiftedChat.append(previousMessages, [newMessage])
@@ -135,9 +140,6 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
     };
 
     await sendMessage(messageData);
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, messages)
-    );
   };
 
   return (
@@ -158,13 +160,55 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
       <GiftedChat
         messages={messages}
         onSend={(messages) => handleSendMessage(messages)}
+        text={text}
         user={{
           _id: usersInChat.currentUser?.$id as string,
           name: usersInChat.currentUser?.username,
           avatar: usersInChat.currentUser?.avatar,
         }}
         renderUsernameOnMessage
+        onInputTextChanged={setText}
         alwaysShowSend
+        textInputProps={{
+          multiline: true,
+          // onKeyPress: (event: { keyCode: number; target: { value: any; }; nativeEvent: { target: any; }; }) => {
+          //   if (Platform.OS === "web" && event.keyCode === 13) {
+          //     const message = event.target.value;
+          //     handleSendMessage([{
+          //       text: message, user: { _id: usersInChat.currentUser?.$id as string },
+          //       _id: Math.random().toString(),
+          //       createdAt: new Date(),
+          //     }]);
+          //     const target = event.nativeEvent.target;
+          //     target.blur();
+
+          //     setTimeout(() => {
+          //       // clear the input field
+          //       target.clear();
+          //       target.value = "";
+          //       target.focus()
+          //     }, 200);
+          //   }
+          // },
+
+          onKeyPress: (event: { nativeEvent: { key: string } }) => {
+            if (event.nativeEvent.key === "Enter") {
+              handleSendMessage([
+                {
+                  text,
+                  user: { _id: usersInChat.currentUser?.$id as string },
+                  _id: Math.random().toString(),
+                  createdAt: new Date(),
+                },
+              ]);
+
+              setTimeout(() => {
+                // clear the input field
+                setText("");
+              }, 200);
+            }
+          },
+        }}
       />
     </View>
   );
