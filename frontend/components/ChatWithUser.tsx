@@ -171,28 +171,9 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
         alwaysShowSend
         textInputProps={{
           multiline: true,
-          // onKeyPress: (event: { keyCode: number; target: { value: any; }; nativeEvent: { target: any; }; }) => {
-          //   if (Platform.OS === "web" && event.keyCode === 13) {
-          //     const message = event.target.value;
-          //     handleSendMessage([{
-          //       text: message, user: { _id: usersInChat.currentUser?.$id as string },
-          //       _id: Math.random().toString(),
-          //       createdAt: new Date(),
-          //     }]);
-          //     const target = event.nativeEvent.target;
-          //     target.blur();
-
-          //     setTimeout(() => {
-          //       // clear the input field
-          //       target.clear();
-          //       target.value = "";
-          //       target.focus()
-          //     }, 200);
-          //   }
-          // },
 
           onKeyPress: (event: { nativeEvent: { key: string } }) => {
-            if (event.nativeEvent.key === "Enter") {
+            if (event.nativeEvent.key === "Enter" && text.trim() !== "") {
               handleSendMessage([
                 {
                   text,
@@ -203,7 +184,6 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
               ]);
 
               setTimeout(() => {
-                // clear the input field
                 setText("");
               }, 200);
             }
