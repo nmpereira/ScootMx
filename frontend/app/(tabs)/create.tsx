@@ -1,18 +1,21 @@
-import { View, Text, SafeAreaView, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
-import CustomButton from "@/components/CustomButton";
-import FormField from "@/components/FormField";
-import { createListing } from "@/lib/appwrite";
 import AlertMessage from "@/components/Alert";
+import CustomButton from "@/components/CustomButton";
+import DropDownSelector from "@/components/DropDownSelector";
+import FormField from "@/components/FormField";
+import Loader from "@/components/Loader";
 import PhotoUpload from "@/components/PhotoUpload";
-import DropDownSelector, {
-  Currency,
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { createListing } from "@/lib/appwrite";
+import {
   City,
-  VehicleType,
-  SelectOptionTypes,
+  Currency,
   DropDownSelectorType,
-} from "@/components/DropDownSelector";
-import { router } from "expo-router";
+  SelectOptionTypes,
+  VehicleType,
+} from "@/types/dbTypes";
+import { Redirect, router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView, ScrollView, Text, View } from "react-native";
 
 export interface FormFieldProps {
   title: string;
@@ -25,6 +28,11 @@ export interface FormFieldProps {
 }
 
 const CreateListing = () => {
+  const { loading, isLogged } = useGlobalContext();
+
+  if (loading) return <Loader isLoading={loading} />
+
+  if (!loading && !isLogged) return <Redirect href="/(tabs)" />;
   const [formFields, setFormFields] = useState<FormFieldProps>({
     title: "",
     price: undefined,
@@ -67,17 +75,13 @@ const CreateListing = () => {
     formFields.city !== undefined &&
     formFields.enginePower !== undefined;
 
-  useEffect(() => {
-    console.log("[formFields] ==>", `${JSON.stringify(formFields)}`);
-  }, [formFields]);
-
   return (
     <SafeAreaView className="bg-background-900 h-full pt-4">
       <View className="flex items-center h-full p-4">
         {/* Input Fields */}
-            <Text className="text-2xl font-semibold text-tertiary-500 my-7 text-center">
-              Create Listing
-            </Text>
+        <Text className="text-2xl font-semibold text-tertiary-500 my-7 text-center">
+          Create Listing
+        </Text>
         <ScrollView className="h-full border border-tertiary-500 rounded-lg p-4 max-w-[414px] w-full">
           <View className="mt-7 w-full">
             {/* Header */}
@@ -204,7 +208,6 @@ const CreateListing = () => {
           isLoading={false}
           isEnabled={isSubmitEnabled}
         />
-
       </View>
     </SafeAreaView>
   );

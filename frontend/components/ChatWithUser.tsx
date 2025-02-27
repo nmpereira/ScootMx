@@ -1,49 +1,96 @@
 import AvatarComponent from "@/components/AvatarComponent";
-import { useGlobalContext } from "@/context/GlobalProvider";
 import {
   appwriteConfig,
   client,
   getMessages,
-  getUser,
   sendMessage,
 } from "@/lib/appwrite";
+import { MessageDocumentDB, UserDocumentDB } from "@/types/dbTypes";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Platform, Text, TouchableOpacity, View } from "react-native";
 import { Models } from "react-native-appwrite";
-import MessageBubble from "./MessageBubble";
+import { GiftedChat, QuickReplies, User } from "react-native-gifted-chat";
+
+export interface IGiftedMessage {
+  _id: string | number;
+  text: string;
+  createdAt: Date | number;
+  user: User;
+  image?: string;
+  video?: string;
+  audio?: string;
+  system?: boolean;
+  sent?: boolean;
+  received?: boolean;
+  pending?: boolean;
+  quickReplies?: QuickReplies;
+}
+
+const parseMessage = (
+  message: MessageDocumentDB,
+  currentUser: UserDocumentDB,
+  nonCurrentUser: UserDocumentDB
+): IGiftedMessage => {
+  const isCurrentUser = message.userFrom.$id === currentUser?.$id;
+
+  console.log({ message, currentUser, nonCurrentUser });
+
+  return {
+    _id: message.$id,
+    text: message.messagebody,
+    createdAt: new Date(message.$createdAt),
+    user: {
+      _id: isCurrentUser ? currentUser.$id : nonCurrentUser.$id,
+      name: isCurrentUser ? currentUser.username : nonCurrentUser.username,
+      avatar: isCurrentUser ? currentUser.avatar : nonCurrentUser.avatar,
+    },
+  };
+};
+
+const parseMessages = ({
+  messages,
+  currentUser,
+  nonCurrentUser,
+}: {
+  messages: MessageDocumentDB[];
+  currentUser: UserDocumentDB;
+  nonCurrentUser: UserDocumentDB;
+}): IGiftedMessage[] => {
+  return messages.map((message) =>
+    parseMessage(message, currentUser, nonCurrentUser)
+  );
+};
 
 const MessagePage = ({ otherUser }: { otherUser: string }) => {
-  const { user } = useGlobalContext();
-  const [nonCurrentUser, setNonCurrentUser] = useState<Models.Document | null>(
-    null
-  );
-  const [messages, setMessages] = useState<Models.Document[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const flatListRef = useRef<FlatList>(null);
+  const [usersInChat, setUsersInChat] = useState<{
+    currentUser: UserDocumentDB | null;
+    nonCurrentUser: UserDocumentDB | null;
+  }>({
+    currentUser: null,
+    nonCurrentUser: null,
+  });
+  const usersInChatRef = useRef(usersInChat);
+  const [messages, setMessages] = useState<IGiftedMessage[]>([]);
+  const [text, setText] = useState<string>("");
 
   const fetchMessages = useCallback(async () => {
-    const response = await getMessages(otherUser);
-    setMessages(response?.documents || []);
-  }, []);
-
-  const fetchNonCurrentUser = async () => {
-    const response = await getUser(otherUser);
-    setNonCurrentUser(response);
-  };
+    const { documents, currentUser, nonCurrentUser } = await getMessages(
+      otherUser
+    );
+    const parsedMessages = parseMessages({
+      messages: documents,
+      currentUser,
+      nonCurrentUser,
+    });
+    setUsersInChat({ currentUser, nonCurrentUser });
+    usersInChatRef.current = { currentUser, nonCurrentUser };
+    setMessages(parsedMessages);
+  }, [otherUser]);
 
   useEffect(() => {
-    fetchNonCurrentUser();
     fetchMessages();
-  }, []);
+  }, [fetchMessages]);
 
   useEffect(() => {
     console.log("subscribing to channel, messages");
@@ -55,12 +102,22 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
         channels,
       }: {
         events: string[];
-        payload: Models.Document;
+        payload: MessageDocumentDB;
         channels: string[];
       }) => {
         if (events.includes("databases.*.collections.*.documents.*.create")) {
-          console.log("A MESSAGE WAS CREATED", payload);
-          setMessages((prevState) => [...prevState, payload]);
+          console.log("A MESSAGE WAS CREATED", payload, {
+            usersInChat: usersInChatRef.current,
+          });
+
+          const newMessage = parseMessage(
+            payload,
+            usersInChatRef.current.currentUser!,
+            usersInChatRef.current.nonCurrentUser!
+          );
+          setMessages((previousMessages) =>
+            GiftedChat.append(previousMessages, [newMessage])
+          );
         }
       }
     );
@@ -71,8 +128,8 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
     };
   }, []);
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim()) return;
+  const handleSendMessage = async (messages: IGiftedMessage[]) => {
+    const newMessage = messages[0].text;
 
     const userTo = otherUser;
     if (!userTo) return;
@@ -83,73 +140,68 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
     };
 
     await sendMessage(messageData);
-    setNewMessage("");
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 p-4 w-full max-w-[414px]"
-    >
-      {/* Chat Header */}
+    <View className="bg-background-light flex-1 w-full max-w-[414px] rounded-lg">
       <View className="flex flex-row items-center gap-4 p-4 border border-tertiary-500 rounded-lg">
         <TouchableOpacity onPress={() => router.navigate("/messages")}>
           <Text className="text-blue-500 font-bold">Back</Text>
         </TouchableOpacity>
         <AvatarComponent
-          name={nonCurrentUser?.username}
-          imageUrl={nonCurrentUser?.avatar}
+          name={usersInChat.nonCurrentUser?.username || "Chat"}
+          imageUrl={usersInChat.nonCurrentUser?.avatar || ""}
         />
         <Text className="text-2xl font-semibold text-tertiary-500">
-          {nonCurrentUser?.username || "Chat"}
+          {usersInChat.nonCurrentUser?.username || "Chat"}
         </Text>
       </View>
 
-      {/* Chat Messages */}
+      <GiftedChat
+        messages={messages}
+        onSend={(messages) => handleSendMessage(messages)}
+        text={text}
+        user={{
+          _id: usersInChat.currentUser?.$id as string,
+          name: usersInChat.currentUser?.username,
+          avatar: usersInChat.currentUser?.avatar,
+        }}
+        renderUsernameOnMessage
+        onInputTextChanged={setText}
+        alwaysShowSend
+        textInputProps={{
+          multiline: true,
 
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item.$id}
-        renderItem={({ item }) => (
-          <MessageBubble
-            message={item}
-            sentByCurrentUser={user?.$id === item.userFrom.$id}
-          />
-        )}
-        contentContainerStyle={{ paddingBottom: 10 }}
-        className="mb-14 border border-tertiary-500 rounded-lg p-4"
-        // onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-        onContentSizeChange={
-          (width, height) =>
-            flatListRef.current?.scrollToOffset({
-              offset: height,
-              animated: false,
-            })
+          onKeyPress: (
+            event:
+              | React.KeyboardEvent<HTMLInputElement>
+              | React.KeyboardEvent<HTMLTextAreaElement>
+          ) => {
+            if (
+              Platform.OS === "web" &&
+              event.nativeEvent.key === "Enter" &&
+              !event.nativeEvent.shiftKey
+            ) {
+              if (text.trim() !== "") {
+                handleSendMessage([
+                  {
+                    text,
+                    user: { _id: usersInChat.currentUser?.$id as string },
+                    _id: Math.random().toString(),
+                    createdAt: new Date(),
+                  },
+                ]);
 
-          // setTimeout(() => {
-          //   flatListRef.current?.scrollToOffset({ offset: height, animated: false })
-          // }, 100)
-        }
+                setTimeout(() => {
+                  setText("");
+                }, 200);
+              }
+              // event.preventDefault();
+            }
+          },
+        }}
       />
-
-      {/* Message Input */}
-      <View className="absolute bottom-0 left-0 w-full flex flex-row items-center p-3">
-        <TextInput
-          value={newMessage}
-          onChangeText={setNewMessage}
-          placeholder="Type a message..."
-          className="flex-1 p-2 border rounded-lg bg-gray-100"
-          multiline
-        />
-        <TouchableOpacity
-          onPress={handleSendMessage}
-          className="ml-3 p-3 bg-blue-500 rounded-lg"
-        >
-          <Text className="text-white font-semibold">Send</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
