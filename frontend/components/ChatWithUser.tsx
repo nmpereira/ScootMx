@@ -34,6 +34,8 @@ const parseMessage = (
 ): IGiftedMessage => {
   const isCurrentUser = message.userFrom.$id === currentUser?.$id;
 
+  console.log({ message, currentUser, nonCurrentUser });
+
   return {
     _id: message.$id,
     text: message.messagebody,
@@ -79,8 +81,8 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
       currentUser,
       nonCurrentUser,
     });
-    setMessages(parsedMessages);
     setUsersInChat({ currentUser, nonCurrentUser });
+    setMessages(parsedMessages);
   }, []);
 
   useEffect(() => {
@@ -101,8 +103,8 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
         channels: string[];
       }) => {
         if (events.includes("databases.*.collections.*.documents.*.create")) {
-          console.log("A MESSAGE WAS CREATED", payload);
-          //   setMessages((prevState) => [...prevState, payload]);
+          console.log("A MESSAGE WAS CREATED", payload, {usersInChat});
+
           const newMessage = parseMessage(
             payload,
             usersInChat.currentUser!,
@@ -111,14 +113,6 @@ const MessagePage = ({ otherUser }: { otherUser: string }) => {
           setMessages((previousMessages) =>
             GiftedChat.append(previousMessages, [newMessage])
           );
-          // setMessages((prevState) => [
-          //   ...prevState,
-          //   parseMessage(
-          //     payload,
-          //     usersInChat.currentUser!,
-          //     usersInChat.nonCurrentUser!
-          //   ),
-          // ]);
         }
       }
     );
